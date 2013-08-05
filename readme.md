@@ -12,7 +12,8 @@ This software is placed under the [OpenScience license](http://fabien.benureau.c
 
 If you which to use processing for visualization:
 
-1. Install [playbox](github.com/humm/playbox)
+1. Install [treedict](http://www.stat.washington.edu/~hoytak/code/treedict/#)
+1. Install [toolbox](github.com/humm/playbox), [playbox](github.com/humm/playbox), [sockit](github.com/humm/playbox)
 1. Copy `procbox.jar` to the `ext/` folder.
 1. `make all`
 
