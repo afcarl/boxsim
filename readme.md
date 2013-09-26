@@ -1,4 +1,4 @@
-**boxsim** is a small wrapper around [**playbox**](github.com/humm/playbox) that allows you to create and control **playbox** simulations from python.
+**boxsim** is a small wrapper around [**playbox**](htt://github.com/humm/playbox) that allows you to create and control **playbox** simulations from python.
 
 It was created to support code for  [experiments on sensorimotor learning](http://fabien.benureau.com). It might somehow be useful to you, especially if you want to rerun, check or tweak the aforementioned experiments.
 
@@ -10,14 +10,14 @@ This software is placed under the [OpenScience license](http://fabien.benureau.c
 
 ## Installation
 
-1. Install [playbox](github.com/humm/playbox)
+1. Install [playbox](htt://github.com/humm/playbox)
 1. Copy `procbox.jar` to the `ext/` folder.
 1. `make all`
 
 You compiled the java server. To build the python library:
 
 1. Install [treedict](http://www.stat.washington.edu/~hoytak/code/treedict/#)
-1. Install [toolbox](github.com/humm/playbox), [sockit](github.com/humm/sockit)
+1. Install [toolbox](htt://github.com/humm/playbox), [sockit](htt://github.com/humm/sockit)
 1. Go to the `boxsim/` folder and run `python setup.py install`
 
 ## Usage
