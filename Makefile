@@ -6,7 +6,7 @@ clean:
 	rm -Rf target/*;
 
 interact:
-	javac -cp ext/procbox.jar experiments/interact/*.java -d target/;
+	javac -cp ext/procbox.jar:ext/sockit.jar experiments/interact/*.java -d target/;
 
 interact.jar: $(INT_CLASS)
 	mkdir -p target && \
@@ -14,8 +14,10 @@ interact.jar: $(INT_CLASS)
 	mkdir -p inflate && \
 	rm -Rf inflate/* && \
 	unzip -q -o ../ext/procbox.jar -d inflate && \
+	unzip -q -o ../ext/sockit.jar -d inflate && \
 	cp -Rf experiments inflate/ && \
 	cd inflate && \
 	jar -cf ../interact.jar .; \
 	cd .. && \
+	cp interact.jar ../boxsim/boxsim/ && \
 	rm -Rf inflate;
