@@ -17,7 +17,7 @@ This software is placed under the [OpenScience license](http://fabien.benureau.c
 You compiled the java server. To build the python library:
 
 1. Install [treedict](http://www.stat.washington.edu/~hoytak/code/treedict/#)
-1. Install [toolbox](http://github.com/humm/playbox), [sockit](http://github.com/humm/sockit)
+1. Install [toolbox](http://github.com/humm/toolbox), [sockit](http://github.com/humm/sockit)
 1. Go to the `boxsim/` folder and run `python setup.py install`
 
 ## Usage
