@@ -9,8 +9,8 @@ import java.util.zip.DataFormatException;
 import java.util.ArrayList;
 
 import playground.Playground;
-import sockit.InputMessage;
-//import sockit.OutputMessage;
+import sockit.InboundMessage;
+//import sockit.OutboundMessage;
 import sockit.Server;
 
 public abstract class Exp {
@@ -107,7 +107,7 @@ public abstract class Exp {
         int n = server.getNumberOfMessages();
         if (n > 0) {
             for (int i = 0; i < n; i++) {
-                InputMessage in_msg = server.receive();
+                InboundMessage in_msg = server.receive();
                 if (in_msg == null) {
                     System.out.println("Fuck");
                 }
@@ -117,12 +117,12 @@ public abstract class Exp {
                 catch (DataFormatException e) {
                     System.out.println("    -> The message was not processed succesfully due to an message format error.");
                     e.printStackTrace();
-                    //server.send(new OutputMessage(ERROR_TYPE));
+                    //server.send(new OutboundMessage(ERROR_TYPE));
                 }
                 catch (IOException e) {
                     System.out.println("    -> The message was not processed succesfully due to an IO error.");
                     e.printStackTrace();
-                    //server.send(new OutputMessage(ERROR_TYPE));
+                    //server.send(new OutboundMessage(ERROR_TYPE));
                 }
             }
         }
@@ -133,6 +133,6 @@ public abstract class Exp {
      * Currently, the contract is that subsequent message do not change a message
      * effect.
      */
-    protected abstract void processMessage(InputMessage msg)
+    protected abstract void processMessage(InboundMessage msg)
          throws DataFormatException, IOException;
 }
