@@ -22,8 +22,8 @@ import playground.sensors.LogSensor;
 import playground.sensors.PosSensor;
 import playground.sensors.AngSensor;
 
-import sockit.InputMessage;
-import sockit.OutputMessage;
+import sockit.InboundMessage;
+import sockit.OutboundMessage;
 
 public class InteractExp extends Exp {
 
@@ -108,7 +108,7 @@ public class InteractExp extends Exp {
 
 
     //
-    private ArrayList<Number> readToyVector(InputMessage msg)
+    private ArrayList<Number> readToyVector(InboundMessage msg)
         throws IOException
     {
         ArrayList<Number> toy_vector = new ArrayList<Number>();
@@ -212,7 +212,7 @@ public class InteractExp extends Exp {
     }
 
 
-    protected OutputMessage processConf(InputMessage msg)
+    protected OutboundMessage processConf(InboundMessage msg)
 		throws IOException
 	{
     	STEP_FREQ = (float)msg.readDouble();
@@ -239,7 +239,7 @@ public class InteractExp extends Exp {
             toy_vectors.add(readToyVector(msg));
         }
 
-        OutputMessage bound_msg = new OutputMessage(MSG_CONF);
+        OutboundMessage bound_msg = new OutboundMessage(MSG_CONF);
 
         // Reachable limits
         bound_msg.appendDouble((double) WALL_SIZE);
@@ -256,7 +256,7 @@ public class InteractExp extends Exp {
      * @throws DataFormatException
      * @throws IOException
      */
-    private void processOrder(InputMessage msg)
+    private void processOrder(InboundMessage msg)
     	throws DataFormatException, IOException
     {
     	int i = msg.readInt();
@@ -272,7 +272,7 @@ public class InteractExp extends Exp {
         }
     }
 
-    private void processReset(InputMessage msg)
+    private void processReset(InboundMessage msg)
         throws DataFormatException, IOException
     {
         int pos_provided = msg.readInt();
@@ -297,7 +297,7 @@ public class InteractExp extends Exp {
      * 		       the number of steps to run.
      * @throws IOException  if an error reading the message is encountered.
      */
-    private void doSteps(InputMessage msg)
+    private void doSteps(InboundMessage msg)
     	throws IOException
     {
     	int n = msg.readInt();
@@ -309,9 +309,9 @@ public class InteractExp extends Exp {
      * @param msg  The message asking for the result.
      * @return  the message with the result.
      */
-    protected OutputMessage getResult(InputMessage msg) {
+    protected OutboundMessage getResult(InboundMessage msg) {
 
-    	OutputMessage result = new OutputMessage(RESULT_TYPE);
+    	OutboundMessage result = new OutboundMessage(RESULT_TYPE);
 
     	int featSize = 0;
     	int historySize = -1;
@@ -347,9 +347,9 @@ public class InteractExp extends Exp {
      * @param msg  The message asking for the readings.
      * @return  the message with the readings.
      */
-    protected OutputMessage getSensors(InputMessage msg) {
+    protected OutboundMessage getSensors(InboundMessage msg) {
 
-    	OutputMessage readings = new OutputMessage(SENSOR_TYPE);
+    	OutboundMessage readings = new OutboundMessage(SENSOR_TYPE);
 
     	int featSize = 0;
     	// We assume each sensor has the same history length
@@ -392,7 +392,7 @@ public class InteractExp extends Exp {
     }
 
     public void sendInverseRequest(ArrayList<Integer> feats, ArrayList<Float> values) {
-    	OutputMessage invreqmsg = new OutputMessage(MSG_INVERSE);
+    	OutboundMessage invreqmsg = new OutboundMessage(MSG_INVERSE);
     	invreqmsg.appendInt(values.size());
     	for (Integer i: feats) {
         	invreqmsg.appendInt(i.intValue());
@@ -405,7 +405,7 @@ public class InteractExp extends Exp {
     }
 
 	@SuppressWarnings("unchecked")
-    protected OutputMessage handleDiplayRequest(InputMessage msg)
+    protected OutboundMessage handleDiplayRequest(InboundMessage msg)
     	throws IOException
     {
     	int rtype = msg.readInt();
@@ -422,12 +422,12 @@ public class InteractExp extends Exp {
         		float py = (float)msg.readDouble();
         		((ArrayList<Vec2>) points).add(new Vec2(px+arm.origin.x, py+arm.origin.y));
     		}
-        	OutputMessage resp = new OutputMessage(MSG_DISPLAY);
+        	OutboundMessage resp = new OutboundMessage(MSG_DISPLAY);
     		resp.appendBoolean(true);
     		return resp;
     	}
     	else {
-        	OutputMessage resp = new OutputMessage(MSG_DISPLAY);
+        	OutboundMessage resp = new OutboundMessage(MSG_DISPLAY);
     		resp.appendBoolean(false);
     		return resp;
     	}
@@ -438,7 +438,7 @@ public class InteractExp extends Exp {
      * Currently, the contract is that subsequent message do not change a message
      * effect.
      */
-    protected void processMessage(InputMessage msg)
+    protected void processMessage(InboundMessage msg)
          throws DataFormatException, IOException
     {
         int type = msg.getType();
@@ -450,13 +450,13 @@ public class InteractExp extends Exp {
         switch(type) {
             case HELLO_TYPE:
             {
-                server.send(new OutputMessage(HELLO_TYPE));
+                server.send(new OutboundMessage(HELLO_TYPE));
                 System.out.println("STATUS : client connected and acknowledged on port "+this.port);
                 break;
             }
             case BYE_TYPE:
             {
-                server.send(new OutputMessage(BYE_TYPE));
+                server.send(new OutboundMessage(BYE_TYPE));
                 System.out.println("STATUS : client disconnected.");
                 break;
             }
@@ -468,7 +468,7 @@ public class InteractExp extends Exp {
             }
             case MSG_CONF:
             {
-            	OutputMessage bound_msg = this.processConf(msg);
+            	OutboundMessage bound_msg = this.processConf(msg);
                 server.send(bound_msg);
                 break;
             }
@@ -480,30 +480,30 @@ public class InteractExp extends Exp {
             }
             case MSG_EXIT:
             {
-                server.send(new OutputMessage(MSG_EXIT));
+                server.send(new OutboundMessage(MSG_EXIT));
                 System.exit(0);
             }
             case ORDER_TYPE:
             {
                 this.processOrder(msg);
-                server.send(new OutputMessage(ORDER_TYPE));
+                server.send(new OutboundMessage(ORDER_TYPE));
                 break;
             }
             case STEP_TYPE:
             {
                 this.doSteps(msg);
-                server.send(new OutputMessage(STEP_TYPE));
+                server.send(new OutboundMessage(STEP_TYPE));
             	break;
             }
             case RESULT_TYPE:
             {
-            	OutputMessage result = this.getResult(msg);
+            	OutboundMessage result = this.getResult(msg);
                 server.send(result);
             	break;
             }
             case SENSOR_TYPE:
             {
-            	OutputMessage sensors = this.getSensors(msg);
+            	OutboundMessage sensors = this.getSensors(msg);
                 server.send(sensors);
             	break;
             }
@@ -514,7 +514,7 @@ public class InteractExp extends Exp {
             }
             case MSG_DISPLAY:
             {
-            	OutputMessage display = this.handleDiplayRequest(msg);
+            	OutboundMessage display = this.handleDiplayRequest(msg);
                 server.send(display);
             	break;
             }
