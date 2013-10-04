@@ -40,7 +40,7 @@ public class InteractExp extends Exp {
     public float angle_limit;
     public int base_x, base_y;
 
-    public ArrayList<ArrayList<Number>> toy_vectors;
+    public ArrayList<ArrayList<Object>> toy_vectors;
     public ArrayList<BodyEntity> toys;
     public ArrayList<PosSensor> toySensors;
 
@@ -91,8 +91,9 @@ public class InteractExp extends Exp {
         int   base_x          = AREA_SIZE/2;
         int   base_y          = 80;
 
-        ArrayList<Number> toy_vector = new ArrayList<Number>();
+        ArrayList<Object> toy_vector = new ArrayList<Object>();
         toy_vector.add(new Integer(0)); // toy_type
+        toy_vector.add(new String("")); // toy_name
         toy_vector.add(new Float(AREA_SIZE/2 + 100)); // toy_x
         toy_vector.add(new Float(AREA_SIZE/2 - 50)); // toy_y
         toy_vector.add(new Float(40.0f)); // toy_size
@@ -100,7 +101,7 @@ public class InteractExp extends Exp {
         toy_vector.add(new Float(0.7f)); // toy_restitution
         toy_vector.add(new Float(1.0f)); // toy_density
 
-        toy_vectors = new ArrayList<ArrayList<Number>>();
+        toy_vectors = new ArrayList<ArrayList<Object>>();
         toy_vectors.add(toy_vector);
 
         createPlayground(init_pos, lengths, base_x, base_y, toy_vectors);
@@ -108,12 +109,13 @@ public class InteractExp extends Exp {
 
 
     //
-    private ArrayList<Number> readToyVector(InboundMessage msg)
+    private ArrayList<Object> readToyVector(InboundMessage msg)
         throws IOException
     {
-        ArrayList<Number> toy_vector = new ArrayList<Number>();
+        ArrayList<Object> toy_vector = new ArrayList<Object>();
 
         toy_vector.add(new Integer(msg.readInt()));  // toy_type
+        toy_vector.add(new Integer(msg.readString()));  // toy_name
 
         toy_vector.add(new Float(msg.readInt()));    // toy_x
         toy_vector.add(new Float(msg.readInt()));    // toy_y
@@ -130,16 +132,17 @@ public class InteractExp extends Exp {
      * Create a toy object on the scene from a toy vector
      * @param toy_vector  parameter vector for the toy, created using readToyVector()
      */
-    private BodyEntity createToy(ArrayList<Number> toy_vector) {
-        int toy_type = ((Integer)toy_vector.get(0)).intValue();
+    private BodyEntity createToy(ArrayList<Object> toy_vector) {
+        int toy_type = ((Integer) toy_vector.get(0)).intValue();
+        String toy_name = (String) toy_vector.get(1);
+        
+        float toy_x    = ((Float) toy_vector.get(2)).floatValue();
+        float toy_y    = ((Float) toy_vector.get(3)).floatValue();
+        float toy_size = ((Float) toy_vector.get(4)).floatValue();
 
-        float toy_x    = ((Float)toy_vector.get(1)).floatValue();
-        float toy_y    = ((Float)toy_vector.get(2)).floatValue();
-        float toy_size = ((Float)toy_vector.get(3)).floatValue();
-
-        float toy_friction = ((Float)toy_vector.get(4).floatValue());
-        float toy_restitution = ((Float)toy_vector.get(5).floatValue());
-        float toy_density = ((Float)toy_vector.get(6).floatValue());
+        float toy_friction = ((Float) toy_vector.get(5)).floatValue();
+        float toy_restitution = ((Float) toy_vector.get(6)).floatValue();
+        float toy_density = ((Float) toy_vector.get(7)).floatValue();
 
         BodyEntity ball;
         if (toy_type == 0) {
@@ -152,7 +155,7 @@ public class InteractExp extends Exp {
         return ball;
     }
 
-    public void createPlayground(ArrayList<Float> init_pos, ArrayList<Float> lengths, int base_x, int base_y, ArrayList<ArrayList<Number>> toy_vectors) {
+    public void createPlayground(ArrayList<Float> init_pos, ArrayList<Float> lengths, int base_x, int base_y, ArrayList<ArrayList<Object>> toy_vectors) {
 
         playground = new Playground(AREA_SIZE, AREA_SIZE, WALL_SIZE);
         playground.setGravity(0.0f, 0.0f);
@@ -166,23 +169,25 @@ public class InteractExp extends Exp {
             // Toy object
 
         toys = new ArrayList<BodyEntity>();
-        for(ArrayList<Number> toy_vector : toy_vectors) {
+        for(ArrayList<Object> toy_vector : toy_vectors) {
             BodyEntity toy = createToy(toy_vector);
             toys.add(toy);
         }
 
             // Sensors
         for(int i = 0; i < arm.bodies.size()-1; i++) { // Sensors for intermediary joints
-        	playground.add(new PosSensor(arm.bodies.get(i), 10000, 1));
-        	playground.add(new AngSensor(arm.bodies.get(i), 10000, 1));
+        	playground.add(new PosSensor(arm.bodies.get(i), 10000, 1, "arm" + String.valueOf(i) + "_pos"));
+        	playground.add(new AngSensor(arm.bodies.get(i), 10000, 1, "arm" + String.valueOf(i) + "_ang"));
         }
-        armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000, 1));
-        armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000, 1));
+        armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000, 1, "arm_pos"));
+        armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000, 1, "arm_ang"));
 
         toySensors = new ArrayList<PosSensor>();
+        int i = 0;
         for(BodyEntity toy : toys) {
-            PosSensor toyPos = (PosSensor) playground.add(new PosSensor(toy, 1000, 1));
+            PosSensor toyPos = (PosSensor) playground.add(new PosSensor(toy, 1000, 1, (String) toy_vectors.get(i).get(2)));
             toySensors.add(toyPos);
+            i++;
         }
 
         // int gpix = playground.cf.addGroup();
@@ -234,7 +239,7 @@ public class InteractExp extends Exp {
 
         int toy_number = msg.readInt();
         //System.out.println(toy_number);
-        toy_vectors = new ArrayList<ArrayList<Number>>();
+        toy_vectors = new ArrayList<ArrayList<Object>>();
         for(int i = 0; i < toy_number; i++) {
             toy_vectors.add(readToyVector(msg));
         }
