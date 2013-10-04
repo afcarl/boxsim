@@ -365,9 +365,8 @@ public class InteractExp extends Exp {
     	readings.appendInt(featSize);
 
     	for (LogSensor s : playground.cc.logSensors) {
-    		for (Float f : s.bareRead()) {
-    			readings.appendDouble(f.doubleValue());
-    		}
+    		readings.appendString(s.getName());
+    		readings.appendArrayList(s.bareRead());
     	}
 
     	return readings;
