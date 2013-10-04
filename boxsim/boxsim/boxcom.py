@@ -96,8 +96,15 @@ class BoxCom(object):
         return results
 
     def process_sensors(self, resmsg):
-        n_size = resmsg.readInt()
-        return tuple(resmsg.readDouble() for _ in range(n_size))
+        n_feature = resmsg.readInt()
+        feats = {}
+        for _ in range(n_feature):
+            name = resmsg.readString()
+            assert name not in feats
+            n_size = resmsg.readInt()
+            feats[name] = tuple(resmsg.readDouble() for _ in range(n_size))
+
+        return feats
 
     def send_order(self, init_pos, order, nsteps, conf):
         """Send an order, run nsteps, and return result"""
