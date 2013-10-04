@@ -176,16 +176,17 @@ public class InteractExp extends Exp {
 
             // Sensors
         for(int i = 0; i < arm.bodies.size()-1; i++) { // Sensors for intermediary joints
-        	playground.add(new PosSensor(arm.bodies.get(i), 10000, 1, "arm" + String.valueOf(i) + "_pos"));
-        	playground.add(new AngSensor(arm.bodies.get(i), 10000, 1, "arm" + String.valueOf(i) + "_ang"));
+        	playground.add(new PosSensor(arm.bodies.get(i), 10000000, 1, "arm" + String.valueOf(i) + "_pos"));
+        	playground.add(new AngSensor(arm.bodies.get(i), 10000000, 1, "arm" + String.valueOf(i) + "_ang"));
         }
-        armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000, 1, "arm_pos"));
-        armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000, 1, "arm_ang"));
+        armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000000, 1, "arm_pos"));
+        armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000000, 1, "arm_ang"));
 
         toySensors = new ArrayList<PosSensor>();
         int i = 0;
         for(BodyEntity toy : toys) {
-            PosSensor toyPos = (PosSensor) playground.add(new PosSensor(toy, 1000, 1, (String) toy_vectors.get(i).get(2)));
+            PosSensor toyPos = (PosSensor) playground.add(new PosSensor(toy, 1000000, 1, (String) toy_vectors.get(i).get(2)));
+            VelSensor toyVel = (VelSensor) playground.add(new VelSensor(toy, 1000000, 1, (String) toy_vectors.get(i).get(2)));
             toySensors.add(toyPos);
             i++;
         }
