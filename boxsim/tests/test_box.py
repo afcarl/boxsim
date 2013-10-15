@@ -9,9 +9,7 @@ def test_unibox():
     """Test that uniformized sim produce coherent results"""
     check = True
 
-    cfg_ = cfg.copy(deep = True)
-    cfg_.motor   = 'commonvelocity'
-    box = boxsim.UniformizeSim(boxsim.BoxSim(cfg_))
+    box = boxsim.Simulation(cfg)
 
     try:
         order = [0.5] * 12 + [0.0]
