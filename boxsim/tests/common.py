@@ -21,9 +21,9 @@ cfg.sprimitive.uniformize  = True
 cfg.mprimitive.name        = 'commonvel'
 cfg.mprimitive.uniformize  = True
 
-cfg.toys.ball.pos         = (550, 350)
-cfg.toys.ball.width       = 40
-cfg.toys.ball.type        = 'ball1'
-cfg.toys.ball.friction    = 1.0
-cfg.toys.ball.restitution = 0.7
-cfg.toys.ball.density     = 1.0
+cfg.toys.ball1.pos         = (550, 350)
+cfg.toys.ball1.width       = 40
+cfg.toys.ball1.type        = 'ball'
+cfg.toys.ball1.friction    = 1.0
+cfg.toys.ball1.restitution = 0.7
+cfg.toys.ball1.density     = 1.0
