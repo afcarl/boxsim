@@ -11,7 +11,7 @@ mprims = {}
 def create_mprim(cfg):
     motor_class = mprims[cfg.mprimitive.name]
     motor_prim = motor_class(cfg)
-    if cfg.uniformize:
+    if cfg.mprimitive.uniformize:
         motor_prim = Uniformize(motor_prim)
     return motor_prim
 
@@ -38,7 +38,7 @@ class Uniformize(MotorPrimitive):
     def process_context(self, context):
         self.motor_prim.process_context(context)
         self.m_feats = self.motor_prim.m_feats
-        self.m_bounds = tuple((0.0, 1.0) for i in range(self.motor_prim.m_featsbounds))
+        self.m_bounds = tuple((0.0, 1.0) for i in self.motor_prim.m_bounds)
 
     def _uni2sim(self, order):
         return tuple(e_i*(b_max - b_min) + b_min for e_i, (b_min, b_max) in zip(order, self.motor_prim.m_bounds))
@@ -54,7 +54,7 @@ class CommonVel(MotorPrimitive):
         self.cfg = cfg
         self.size = len(self.cfg.arm.lengths)
         self.m_feats = tuple(range(-1, -2*self.size-2, -1))
-        self.m_bounds = self.size*tuple(self.cfg.arm.limits) + ((0.0, 1.0),)
+        self.m_bounds = 2*self.size*(tuple(self.cfg.arm.limits),) + ((0.0, 1.0),)
 
     def process_context(self, context):
         pass

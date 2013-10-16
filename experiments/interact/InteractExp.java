@@ -71,6 +71,8 @@ public class InteractExp extends Exp {
         super(port, rc);
 
         lengths = new ArrayList<Float>();
+
+        playground = new Playground(AREA_SIZE, AREA_SIZE, WALL_SIZE);
     }
 
 

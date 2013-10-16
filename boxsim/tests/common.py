@@ -12,12 +12,14 @@ cfg.steps         = 12*60
 cfg.com.visu        = False
 cfg.com.verbose     = False
 cfg.com.debug       = False
-cfg.com.java_output = True
+cfg.com.java_output = False
 
 cfg.sprimitive.name        = 'endpos'
 cfg.sprimitive.object_name = 'ball1'
+cfg.sprimitive.uniformize  = True
 
-cfg.mprimitive.name = 'commonvel'
+cfg.mprimitive.name        = 'commonvel'
+cfg.mprimitive.uniformize  = True
 
 cfg.toys.ball.pos         = (550, 350)
 cfg.toys.ball.width       = 40

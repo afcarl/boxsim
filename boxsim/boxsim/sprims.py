@@ -37,7 +37,7 @@ class Uniformize(SensoryPrimitive):
     def process_context(self, context):
         self.sensory_prim.process_context(context)
         self.s_feats = self.sensory_prim.s_feats
-        self.s_bounds = tuple((0.0, 1.0) for i in range(self.sensory_prim.s_bounds))
+        self.s_bounds = tuple((0.0, 1.0) for _ in self.sensory_prim.s_bounds)
 
     def _sim2uni(self, effect):
         return tuple((e_i - s_min)/(s_max - s_min) for e_i, (s_min, s_max) in zip(effect, self.sensory_prim.s_bounds))
@@ -60,7 +60,7 @@ class EndPos(SensoryPrimitive):
         pos_array = sensors_data[self.object_name + '_pos']
         pos_a = pos_array[0]
         pos_b = pos_array[-1]
-        collision = 1.0 if pos_a == pos_b else 0.0
+        collision = 0.0 if pos_a == pos_b else 1.0
 
         return tuple(pos_b) + (collision,)
 

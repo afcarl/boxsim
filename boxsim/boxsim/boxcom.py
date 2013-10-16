@@ -172,7 +172,7 @@ class BoxCom(object):
         return self.receive_sensors()
 
     def send_conf(self, conf):
-        print('CONF', [60.0, 3, 20, 20] + conf)
+        #print('CONF', [60.0, 3, 20, 20] + conf)
         msg = self.client.sendAndReceive(OutboundMessage(MSG_CONF, [60.0, 3, 20, 20] + conf))
         assert msg.type == MSG_CONF
 

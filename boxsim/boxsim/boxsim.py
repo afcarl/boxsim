@@ -1,6 +1,5 @@
 import treedict
 
-import boxfmt
 import boxcom
 import sprims
 import mprims
@@ -66,7 +65,6 @@ class Simulation(object):
     def execute_order(self, order):
         motor_cmd = self.motor_prim.process_order(order)
         featdict = self._boxabs.execute_order(motor_cmd, self.cfg.steps)
-        print sorted(featdict.keys())
         effect = self.sensory_prim.process_sensors(featdict)
         assert(all(b_min <= e_i <= b_max for e_i, (b_min, b_max) in zip(effect, self.s_bounds)))
         return effect
