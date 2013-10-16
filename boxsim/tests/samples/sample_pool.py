@@ -1,73 +1,21 @@
-import treedict
+import testenv
 import boxsim
+from common import cfg
 
-cfg = treedict.TreeDict()
-cfg.steps       = 12*60
-cfg.armsize     = 6
-cfg.arm_lengths = (50.0,)*6
-cfg.angle_limit = 2.0
-cfg.max_speed   = 2.0
-cfg.base_pos    = (400, 80)
-
-cfg.visu        = True
-cfg.verbose     = True
-cfg.debug       = False
-cfg.java_output = False
-
-cfg.sensors = 'toy'
-cfg.motors  = 'commonvelocity'
-
-cfg.toys.ball1.pos         = (550, 350)
-cfg.toys.ball1.width       = 40
-cfg.toys.ball1.type        = 'ball'
-cfg.toys.ball1.friction    = 1.0
-cfg.toys.ball1.restitution = 0.7
-cfg.toys.ball1.density     = 1.0
-
-cfg.toys.ball2.pos         = (130, 670)
+cfg.toys.ball2.pos         = (200, 600)
 cfg.toys.ball2.width       = 40
 cfg.toys.ball2.type        = 'ball'
 cfg.toys.ball2.friction    = 1.0
 cfg.toys.ball2.restitution = 0.7
 cfg.toys.ball2.density     = 1.0
 
-cfg.toys.ball3.pos         = (670, 670)
-cfg.toys.ball3.width       = 40
-cfg.toys.ball3.type        = 'ball'
-cfg.toys.ball3.friction    = 1.0
-cfg.toys.ball3.restitution = 0.7
-cfg.toys.ball3.density     = 1.0
+cfg.sprimitive.object_name = 'ball2'
 
-cfg.toys.ball4.pos         = (670, 130)
-cfg.toys.ball4.width       = 40
-cfg.toys.ball4.type        = 'ball'
-cfg.toys.ball4.friction    = 1.0
-cfg.toys.ball4.restitution = 0.7
-cfg.toys.ball4.density     = 1.0
+box = boxsim.Simulation(cfg)
 
+box.execute_order([0.685, 0.581, 0.725, 0.271, 0.752, 0.425, 0.252, 0.756, 0.262, 0.083, 0.290, 0.712, 0.699])
 
-cfg.toys.cube1.pos         = (110, 150)
-cfg.toys.cube1.width       = 40
-cfg.toys.cube1.type        = 'cube'
-cfg.toys.cube1.friction    = 1.0
-cfg.toys.cube1.restitution = 0.7
-cfg.toys.cube1.density     = 1.0
+box.execute_order([0.579843533548397, 0.6412767414026208, 0.42324035141176786, 0.7924499902163639, 0.4559997987480451, 0.5229572299341468, 0.6026852535872274, 0.28393988706497864, 0.10488446737970147, 0.187015368013434, 0.6166246699412306, 0.27077833538579243, 0.5065892864098486])
 
-cfg.toys.cube2.pos         = (150, 110)
-cfg.toys.cube2.width       = 40
-cfg.toys.cube2.type        = 'cube'
-cfg.toys.cube2.friction    = 1.0
-cfg.toys.cube2.restitution = 0.7
-cfg.toys.cube2.density     = 1.0
-
-
-
-cfg.toy_order = ['ball1', 'ball2', 'ball3', 'cube1', 'cube2']
-
-box = boxsim.UniformizeSim(boxsim.BoxSim(cfg))
-
-#order = [random.uniform(bi_min, bi_max) for (bi_min, bi_max) in box.m_bounds]
-order = [0.5] * 12 + [0.0]
-print box.execute_order(order)
-
+raw_input()
 box.close()

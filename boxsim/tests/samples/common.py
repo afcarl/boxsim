@@ -1,33 +1,29 @@
 import treedict
 
 cfg = treedict.TreeDict()
-cfg.steps       = 12*60
-cfg.armsize     = 6
-cfg.arm_lengths = (50.0,)*6
-cfg.angle_limit = 2.0
-cfg.max_speed   = 2.0
-cfg.base_pos    = (400, 80)
 
-cfg.visu        = True
-cfg.verbose     = True
-cfg.debug       = True
-cfg.java_output = True
+cfg.arm.lengths   = (50.0,)*6
+cfg.arm.limits    = (-2.0, 2.0)
+cfg.arm.max_speed = 2.0
+cfg.arm.base_pos  = (400, 80)
 
-cfg.sensors = 'toy'
-cfg.motors  = 'commonvelocity'
+cfg.steps         = 12*60
 
-cfg.toys.ball.pos         = (550, 350)
-cfg.toys.ball.width       = 40
-cfg.toys.ball.type        = 'ball'
-cfg.toys.ball.friction    = 1.0
-cfg.toys.ball.restitution = 0.7
-cfg.toys.ball.density     = 1.0
+cfg.com.visu        = True
+cfg.com.verbose     = False
+cfg.com.debug       = False
+cfg.com.java_output = False
 
-cfg.toys.cube.pos         = (550, 400)
-cfg.toys.cube.width       = 40
-cfg.toys.cube.type        = 'cube'
-cfg.toys.cube.friction    = 1.0
-cfg.toys.cube.restitution = 0.7
-cfg.toys.cube.density     = 1.0
+cfg.sprimitive.name        = 'endpos'
+cfg.sprimitive.object_name = 'ball1'
+cfg.sprimitive.uniformize  = True
 
-cfg.toy_order = ['ball', 'cube']
+cfg.mprimitive.name        = 'commonvel'
+cfg.mprimitive.uniformize  = True
+
+cfg.toys.ball1.pos         = (550, 350)
+cfg.toys.ball1.width       = 40
+cfg.toys.ball1.type        = 'ball'
+cfg.toys.ball1.friction    = 1.0
+cfg.toys.ball1.restitution = 0.7
+cfg.toys.ball1.density     = 1.0
