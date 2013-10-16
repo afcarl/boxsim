@@ -78,8 +78,8 @@ class Simulation(object):
         toys = []
         for toyname, toy in self.cfg.toys.iteritems(recursive=False, branch_mode='only'):
 
-            toys.append([toy.type,
-                         toyname,
+            toys.append([toyname,
+                         toy.type,
                          toy.pos,
                          toy.width,
                          toy.friction,
