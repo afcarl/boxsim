@@ -12,7 +12,7 @@ cfg.steps         = 12*60
 cfg.com.visu        = False
 cfg.com.verbose     = False
 cfg.com.debug       = False
-cfg.com.java_output = False
+cfg.com.java_output = True
 
 cfg.sprimitive.name        = 'endpos'
 cfg.sprimitive.object_name = 'ball1'

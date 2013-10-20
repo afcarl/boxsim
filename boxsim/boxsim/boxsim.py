@@ -1,8 +1,8 @@
 import treedict
 
-import boxcom
-import sprims
-import mprims
+from . import boxcom
+from . import sprims
+from . import mprims
 
 defaultcfg = treedict.TreeDict()
 

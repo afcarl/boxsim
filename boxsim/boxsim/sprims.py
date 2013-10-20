@@ -2,6 +2,8 @@
 Computing sensory primitives from raw data.
 """
 
+import toolbox
+
 def enforce_bounds(data, bounds):
     return tuple(min(bi_max, max(bi_min, d_i)) for di, (bi_min, bi_max) in zip(data, bounds))
 
@@ -65,3 +67,23 @@ class EndPos(SensoryPrimitive):
         return tuple(pos_b) + (collision,)
 
 sprims['endpos'] = EndPos
+
+
+class MaxVel(SensoryPrimitive):
+
+    def __init__(self, cfg):
+        self.object_name = cfg.sprimitive.object_name
+
+    def process_context(self, context):
+        self.s_feats = (0, 1)
+        self.s_bounds = ((0.0, 10.0),) + ((0.0, 1.0),)
+
+    def process_sensors(self, sensors_data):
+        vel_array = sensors_data[self.object_name + '_vel']
+        max_vel = max(toolbox.norm(v_i) for v_i in vel_array)
+        collision = 0.0 if max_vel == 0.0 else 1.0
+
+        return (max_vel, collision,)
+
+sprims['maxvel'] = MaxVel
+
