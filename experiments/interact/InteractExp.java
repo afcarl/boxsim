@@ -130,10 +130,10 @@ public class InteractExp extends Exp {
 
         BodyEntity ball;
         if (toy_type.toString().equals("ball")) {
-            ball = (BodyEntity) playground.add(new Ball(playground, toy_x, toy_y, toy_size/2.0f, false, 1.0f, 1.0f, toy_friction, toy_restitution, toy_density));
+            ball = (BodyEntity) playground.add(new Ball(playground, toy_name, toy_x, toy_y, toy_size/2.0f, false, 1.0f, 1.0f, toy_friction, toy_restitution, toy_density));
         } else {
-            assert (toy_type.toString().equals("ball1"));
-            ball = (BodyEntity) playground.add(new Box(playground, toy_x, toy_y, toy_size, toy_size, 75.0f, false, 1.0f, 1.0f, toy_friction, toy_restitution, toy_density));
+            assert (toy_type.toString().equals("box"));
+            ball = (BodyEntity) playground.add( new Box(playground, toy_name, toy_x, toy_y, toy_size, toy_size, 75.0f, false, 1.0f, 1.0f, toy_friction, toy_restitution, toy_density));
         }
 
         return ball;
@@ -146,7 +146,7 @@ public class InteractExp extends Exp {
         assert(init_pos.size() == lengths.size());
 
             // Arm + control interface
-        arm = (Arm) playground.add(new Arm(playground, lengths.size(), lengths, angle_limit, base_x, base_y, init_pos));
+        arm = (Arm) playground.add(new Arm(playground, "arm", lengths.size(), lengths, angle_limit, base_x, base_y, init_pos));
         armc = (PIDController) playground.add(new PIDController(arm, 0.85f, 0.001f, 5.0f));
 
             // Toy object
@@ -159,17 +159,17 @@ public class InteractExp extends Exp {
 
             // Sensors
         for(int i = 0; i < arm.bodies.size()-1; i++) { // Sensors for intermediary joints
-            playground.add(new PosSensor(arm.bodies.get(i), 10000000, 1, "arm" + String.valueOf(i) + "_pos"));
-            playground.add(new AngSensor(arm.bodies.get(i), 10000000, 1, "arm" + String.valueOf(i) + "_ang"));
+            playground.add(new PosSensor(arm.bodies.get(i), 10000000, 1));
+            playground.add(new AngSensor(arm.bodies.get(i), 10000000, 1));
         }
-        armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000000, 1, "arm_pos"));
-        armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000000, 1, "arm_ang"));
+        armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000000, 1));
+        armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000000, 1));
 
         toySensors = new ArrayList<PosSensor>();
         int i = 0;
         for(BodyEntity toy : toys) {
-            PosSensor toyPos = (PosSensor) playground.add(new PosSensor(toy, 1000000, 1, (String) ((ArrayList<Object>) toy_vectors.get(i)).get(0) + "_pos"));
-            VelSensor toyVel = (VelSensor) playground.add(new VelSensor(toy, 1000000, 1, (String) ((ArrayList<Object>) toy_vectors.get(i)).get(0) + "_vel"));
+            PosSensor toyPos = (PosSensor) playground.add(new PosSensor(toy, 1000000, 1));
+            VelSensor toyVel = (VelSensor) playground.add(new VelSensor(toy, 1000000, 1));
             toySensors.add(toyPos);
             i++;
         }
