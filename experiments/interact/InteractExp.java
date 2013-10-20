@@ -27,8 +27,8 @@ import playground.sensors.VelSensor;
 import sockit.InboundMessage;
 import sockit.OutboundMessage;
 
-public class InteractExp extends Exp {
 
+public class InteractExp extends Exp {
 
     protected boolean availInverse = false;
 
@@ -461,19 +461,19 @@ public class InteractExp extends Exp {
         String RED       = "\u001B[31m";
         String CLR_RESET = "\u001B[0m";
 
-        System.out.println("STATUS : received message of type ("+type+") and length ("+msg.getLength()+")");
+        //System.out.println("STATUS : received message of type ("+type+") and length ("+msg.getLength()+")");
 
         switch(type) {
             case HELLO_TYPE:
             {
                 server.send(new OutboundMessage(HELLO_TYPE));
-                System.out.println("STATUS : client connected and acknowledged on port "+this.port);
+                System.out.println("STATUS: client connected and acknowledged on port "+this.port);
                 break;
             }
             case BYE_TYPE:
             {
                 server.send(new OutboundMessage(BYE_TYPE));
-                System.out.println("STATUS : client disconnected.");
+                System.out.println("STATUS: client disconnected.");
                 break;
             }
             case ERROR_TYPE:
