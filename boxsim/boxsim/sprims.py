@@ -147,11 +147,10 @@ class Hear(SensoryPrimitive):
     def process_sensors(self, sensors_data):
         collisions = sensors_data['_collisions']
         collisions = filter_collisions(collisions, ['wallW', 'wallS', 'wallE'], [self.object_name])
-        print collisions
         if len(collisions) < 3:
             return (0.5, 0.5, 0.0)
         else:
-            return (self._transform(c) for c in collision[:3])
+            return (self._transform(c) for c in collisions[:3])
 
     def _transform(self, collision):
         """Transform a collision with a wall into a number between 0 and 1"""
