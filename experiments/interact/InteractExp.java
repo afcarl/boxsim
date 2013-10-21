@@ -124,19 +124,21 @@ public class InteractExp extends Exp {
         float toy_y    = ((Number) ((ArrayList<Object>) toy_vector.get(2)).get(1)).floatValue();
         float toy_size = ((Number) toy_vector.get(3)).floatValue();
 
-        float toy_friction    = ((Number) toy_vector.get(4)).floatValue();
-        float toy_restitution = ((Number) toy_vector.get(5)).floatValue();
-        float toy_density     = ((Number) toy_vector.get(6)).floatValue();
+        float toy_friction        = ((Number) toy_vector.get(4)).floatValue();
+        float toy_restitution     = ((Number) toy_vector.get(5)).floatValue();
+        float toy_density         = ((Number) toy_vector.get(6)).floatValue();
+        float toy_linear_damping  = ((Number) toy_vector.get(7)).floatValue();
+        float toy_angular_damping = ((Number) toy_vector.get(8)).floatValue();
 
-        BodyEntity ball;
+        BodyEntity toy;
         if (toy_type.toString().equals("ball")) {
-            ball = (BodyEntity) playground.add(new Ball(playground, toy_name, toy_x, toy_y, toy_size/2.0f, false, 1.0f, 1.0f, toy_friction, toy_restitution, toy_density));
+            toy = (BodyEntity) playground.add(new Ball(playground, toy_name, toy_x, toy_y, toy_size/2.0f, false, toy_linear_damping, toy_angular_damping, toy_friction, toy_restitution, toy_density));
         } else {
             assert (toy_type.toString().equals("box"));
-            ball = (BodyEntity) playground.add( new Box(playground, toy_name, toy_x, toy_y, toy_size, toy_size, 75.0f, false, 1.0f, 1.0f, toy_friction, toy_restitution, toy_density));
+            toy = (BodyEntity) playground.add( new Box(playground, toy_name, toy_x, toy_y, toy_size, toy_size, 75.0f, false, toy_linear_damping, toy_angular_damping, toy_friction, toy_restitution, toy_density));
         }
 
-        return ball;
+        return toy;
     }
 
     public void createPlayground(ArrayList<Float> init_pos) {

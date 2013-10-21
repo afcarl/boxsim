@@ -2,9 +2,10 @@ import testenv
 import boxsim
 from common import cfg
 
-cfg.toys.ball1.friction    = 1000.0
-cfg.toys.ball1.restitution = 1.5
-cfg.toys.ball1.density     = 0.1
+cfg.toys.ball1.friction       = 1.0
+cfg.toys.ball1.restitution    = 1.0
+cfg.toys.ball1.density        = 0.5
+cfg.toys.ball1.linear_damping = 0.3
 
 cfg.sprimitive.name = 'hear'
 cfg.sprimitive.object_name = 'ball1'

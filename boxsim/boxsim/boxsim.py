@@ -84,7 +84,9 @@ class Simulation(object):
                          toy.width,
                          toy.friction,
                          toy.restitution,
-                         toy.density])
+                         toy.density,
+                         toy.linear_damping,
+                         toy.angular_damping])
         self.conf.append(toys)
 
         return self.conf
