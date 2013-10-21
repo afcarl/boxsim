@@ -209,21 +209,21 @@ public class InteractExp extends Exp {
         ITER_VEL  = msg.readInt();
         ITER_POS  = msg.readInt();
 
-        ArrayList<Object> lengths_d = msg.readArrayList();
+        ArrayList<Object> lengths_d = (ArrayList<Object>) msg.readArrayList();
 
         lengths.clear();
         for(Object d : lengths_d) {
             lengths.add(new Float(((Number)d).floatValue()));
         }
 
-        ArrayList<Object> joint_limits = msg.readArrayList();
+        ArrayList<Object> joint_limits = (ArrayList<Object>) msg.readArrayList();
         angle_limit = ((Number)joint_limits.get(1)).floatValue();
 
-        ArrayList<Object> base_pos = msg.readArrayList();
+        ArrayList<Object> base_pos = (ArrayList<Object>) msg.readArrayList();
         base_x = ((Number)base_pos.get(0)).intValue();
         base_y = ((Number)base_pos.get(1)).intValue();
 
-        toy_vectors = msg.readArrayList();
+        toy_vectors = (ArrayList<Object>) msg.readArrayList();
 
         // Reachable limits
         ArrayList<ArrayList<Double>> bounds = new ArrayList<ArrayList<Double>>();
@@ -262,9 +262,9 @@ public class InteractExp extends Exp {
     private void processOrder(InboundMessage msg)
         throws DataFormatException, IOException
     {
-        ArrayList<Float>  start_pos = alo2alf(msg.readArrayList());
-        ArrayList<Float>    end_pos = alo2alf(msg.readArrayList());
-        ArrayList<Float> velocities = alo2alf(msg.readArrayList());
+        ArrayList<Float>  start_pos = alo2alf((ArrayList<Object>) msg.readArrayList());
+        ArrayList<Float>    end_pos = alo2alf((ArrayList<Object>) msg.readArrayList());
+        ArrayList<Float> velocities = alo2alf((ArrayList<Object>) msg.readArrayList());
 
         assert  start_pos.size() == lengths.size();
         assert    end_pos.size() == lengths.size();
