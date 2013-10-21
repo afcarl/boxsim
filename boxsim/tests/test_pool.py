@@ -27,11 +27,6 @@ def test_pool():
             pos = box.execute_order(order)
             if pos[2] == 1.0:
                 print order
-            if pos[2] == 0.0:
-                check *= toy_pos == pos
-            if pos[:2] == toy_pos[:2]:
-                check *= toy_pos[2] == pos[2]
-            check *= all(0 <= pos_i <= 1 for pos_i in pos)
 
     except Exception as e:
         traceback.print_exc()
