@@ -3,10 +3,13 @@ Computing sensory primitives from raw data.
 """
 
 import toolbox
+import robots
 
 def enforce_bounds(data, bounds):
     return tuple(min(bi_max, max(bi_min, d_i)) for di, (bi_min, bi_max) in zip(data, bounds))
 
+def isobarycenter(bounds):
+    return tuple((b+a)/2.0 for a, b in bounds)
 
 sprims = {}
 
@@ -76,7 +79,7 @@ class MaxVel(SensoryPrimitive):
 
     def process_context(self, context):
         self.s_feats = (0, 1)
-        self.s_bounds = ((0.0, 10.0),) + ((0.0, 1.0),)
+        self.s_bounds = ((0.0, 800.0),) + ((0.0, 1.0),)
 
     def process_sensors(self, sensors_data):
         vel_array = sensors_data[self.object_name + '_vel']
@@ -87,3 +90,79 @@ class MaxVel(SensoryPrimitive):
 
 sprims['maxvel'] = MaxVel
 
+
+class Collisions(SensoryPrimitive):
+
+    def __init__(self, cfg):
+        self.setA = cfg.sprimitive.setA
+        self.setB = cfg.sprimitive.setB
+
+    def process_context(self, context):
+        self.s_feats = (0, 1, 2, 3, 4)
+        self.s_bounds =  tuple(context['geobounds']) + ((-800.0, 800.0), (-800.0, 800.0)) + ((0.0, 1.0),)
+
+    def process_sensors(self, sensors_data):
+        collisions = sensors_data['_collisions']
+        for collision in collisions:
+            nameA = collision[0]
+            nameB = collision[1]
+            if nameA in  self.setA:
+                if nameB in self.setB:
+                    return tuple(collision[2]) + tuple(collision[3]) + (1.0,)
+            if nameB in self.setA:
+                if nameA in self.setB:
+                    return tuple(collision[2]) + (-collision[3][0], -collision[3][1]) + (1.0,)
+
+        return isobarycenter(self.s_bounds)[:4] + (0.0,)
+
+sprims['collisions'] = Collisions
+
+
+def filter_collisions(collisions, setA, setB):
+    """ Filter collision that involve object from set A and B,
+        and put them in the same order (object from set A first)
+    """
+    filtered = []
+    for collision in collisions:
+        nameA = collision[0]
+        nameB = collision[1]
+        if nameA in setA and nameB in setB:
+            filtered.append(collision)
+        elif nameB in setA and nameA in setB:
+            filtered.append((collision[1], collision[0], collision[2], (-collision[3][0], -collision[3][1])))
+
+    return filtered
+
+class Hear(SensoryPrimitive):
+    """If ball1 collides with wallW and wallN and wallE, then produces a sound"""
+
+    def __init__(self, cfg):
+        self.object_name = cfg.sprimitive.object_name
+        self.s_feats = (0, 1, 2)
+        self.s_bounds = 3*((0.0, 1.0),)
+
+    def process_context(self, context):
+        self.geobounds = context['geobounds']
+
+    def process_sensors(self, sensors_data):
+        collisions = sensors_data['_collisions']
+        collisions = filter_collisions(collisions, ['wallW', 'wallS', 'wallE'], [self.object_name])
+        print collisions
+        if len(collisions) < 3:
+            return (0.5, 0.5, 0.0)
+        else:
+            return (self._transform(c) for c in collision[:3])
+
+    def _transform(self, collision):
+        """Transform a collision with a wall into a number between 0 and 1"""
+        if collision[0] == 'wallW' or collision[0] == 'wallE':
+            y = collision[2][1]
+            min_y, max_y = self.geobounds[1]
+            return 1.0*(y - min_y)/(max_y - min_y)
+        else:
+            assert collision[0] == 'wallS'
+            x = collision[2][0]
+            min_x, max_x = self.geobounds[0]
+            return 1.0*(x - min_x)/(max_x - min_x)
+
+sprims['hear'] = Hear
