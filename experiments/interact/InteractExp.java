@@ -323,40 +323,40 @@ public class InteractExp extends Exp {
      * @param msg  The message asking for the result.
      * @return  the message with the result.
      */
-    protected OutboundMessage getResult(InboundMessage msg)
-        throws IOException
-    {
-
-        OutboundMessage result = new OutboundMessage(RESULT_TYPE);
-
-        int featSize = 0;
-        int historySize = -1;
-        // We assume each sensor has the same history length
-        for (LogSensor s : playground.cc.logSensors) {
-            featSize += s.lenght();
-            if (historySize == -1) {
-                historySize = s.historySize();
-            } else {
-                assert historySize == s.historySize();
-            }
-        }
-
-        result.appendInt(featSize);
-        for (int i = 0; i < featSize; i++) {
-            result.appendInt(i);
-        }
-
-        for (int k = 0; k < historySize; k++) {
-            result.appendInt(featSize);
-            for (LogSensor s : playground.cc.logSensors) {
-                for (Float f : s.history().get(k)) {
-                    result.appendDouble(f.floatValue());
-                }
-            }
-        }
-
-        return result;
-    }
+    // protected OutboundMessage getResult(InboundMessage msg)
+    //     throws IOException
+    // {
+    //
+    //     OutboundMessage result = new OutboundMessage(RESULT_TYPE);
+    //
+    //     int featSize = 0;
+    //     int historySize = -1;
+    //     // We assume each sensor has the same history length
+    //     for (LogSensor s : playground.cc.logSensors) {
+    //         featSize += s.lenght();
+    //         if (historySize == -1) {
+    //             historySize = s.historySize();
+    //         } else {
+    //             assert historySize == s.historySize();
+    //         }
+    //     }
+    //
+    //     result.appendInt(featSize);
+    //     for (int i = 0; i < featSize; i++) {
+    //         result.appendInt(i);
+    //     }
+    //
+    //     for (int k = 0; k < historySize; k++) {
+    //         result.appendInt(featSize);
+    //         for (LogSensor s : playground.cc.logSensors) {
+    //             for (Float f : s.history().get(k)) {
+    //                 result.appendDouble(f.floatValue());
+    //             }
+    //         }
+    //     }
+    //
+    //     return result;
+    // }
 
     /**
      * Get the readings from the sensors.
@@ -373,6 +373,8 @@ public class InteractExp extends Exp {
         for (LogSensor s : playground.cc.logSensors) {
             readings.put(s.getName(), s.history());
         }
+
+        readings.put(playground.cr.getName(), playground.cr.history());
 
         outmsg.appendMap(readings);
 
