@@ -140,6 +140,8 @@ class Hear(SensoryPrimitive):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2)
         self.s_bounds = 3*((0.0, 1.0),)
+        self.vocalizer = robots.VowelModel()
+
 
     def process_context(self, context):
         self.geobounds = context['geobounds']
@@ -148,9 +150,13 @@ class Hear(SensoryPrimitive):
         collisions = sensors_data['_collisions']
         collisions = filter_collisions(collisions, ['wallW', 'wallS', 'wallE'], [self.object_name])
         if len(collisions) < 3:
-            return (0.5, 0.5, 0.0)
+            mouth = (0.5, 0.5, 0.5)
+            suffix = (0.0,)
         else:
-            return (self._transform(c) for c in collisions[:3])
+            mouth = tuple(self._transform(c) for c in collisions[:3])
+            suffix = (1.0,)
+        perceive = self.vocalizer.execute_order(mouth) + suffix
+        return perceive
 
     def _transform(self, collision):
         """Transform a collision with a wall into a number between 0 and 1"""
