@@ -234,19 +234,13 @@ class Visual(SensoryPrimitive):
         x_min, x_max = self.geobounds[0]
         y_min, y_max = self.geobounds[1]
         
-        x_min -= x_min
-        y_min -= y_min
-        x_max -= x_min
-        y_max -= y_min
-        
         pos_list = sensors_data[self.object_name + '_pos']
         gamma = 0.99
         sum_gamma = 0.0
-        red = 0.0
-        blue = 0.0
-        green = 0.0
+        red, green, blue = 0.0, 0.0, 0.0
         for pos in reversed(pos_list):
-            c = self.bilinear_interpolate_color(color_upleft, color_upright, color_lowleft, color_lowright, pos[0] / x_max, pos[1] / y_max)
+            c = self.bilinear_interpolate_color(color_upleft, color_upright, color_lowleft, color_lowright,
+                (pos[0] - x_min) / (x_max - x_min), (pos[1] - y_min) / (y_max - y_min))
             red += c.red * gamma
             blue += c.blue * gamma
             green += c.green * gamma
@@ -255,31 +249,19 @@ class Visual(SensoryPrimitive):
         return (red / 255 / sum_gamma, green / 255 / sum_gamma, blue / 255 / sum_gamma, 0.0)
         
     def interpolate_color(self, color_1, color_2, fraction):
-        fraction = min(fraction, 1.0)
-        fraction = max(fraction, 0.0)
+        fraction = max(min(fraction, 1.0), 0.0)
         
-        red_1 = color_1.red * int_to_float_const
-        green_1 = color_1.green * int_to_float_const
-        blue_1 = color_1.blue * int_to_float_const
+        delta_red = (color_2.red * int_to_float_const) - (color_1.red * int_to_float_const)
+        delta_green = (color_2.green * int_to_float_const) - (color_1.green * int_to_float_const)
+        delta_blue = (color_2.blue * int_to_float_const) - (color_1.blue * int_to_float_const)
         
-        red_2 = color_2.red * int_to_float_const
-        green_2 = color_2.green * int_to_float_const
-        blue_2 = color_2.blue * int_to_float_const
+        red = (color_1.red * int_to_float_const) + (delta_red * fraction)
+        green = (color_1.green * int_to_float_const) + (delta_green * fraction)
+        blue = (color_1.blue * int_to_float_const) + (delta_blue * fraction)
         
-        delta_red = red_2 - red_1
-        delta_green = green_2 - green_1
-        delta_blue = blue_2 - blue_1
-        
-        red = red_1 + (delta_red * fraction)
-        green = green_1 + (delta_green * fraction)
-        blue = blue_1 + (delta_blue * fraction)
-        
-        red = min(red, 1.0)
-        red = max(red, 0.0)
-        green = min(green, 1.0)
-        green = max(green, 0.0)
-        blue = min(blue, 1.0)
-        blue = max(blue, 0.0)
+        red = max(min(red, 1.0), 0.0)
+        green = max(min(green, 1.0), 0.0)
+        blue = max(min(blue, 1.0), 0.0)
         
         return Color(red * 255, green * 255, blue * 255)
         
