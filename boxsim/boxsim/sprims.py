@@ -144,9 +144,9 @@ class Hear(SensoryPrimitive):
 
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
-        self.s_feats = (0, 1, 2)
-        self.s_bounds = 3*((0.0, 1.0),)
         self.vocalizer = robots.VowelModel()
+        self.s_feats = (0, 1, 2)
+        self.s_bounds = self.vocalizer.s_bounds + ((0.0, 1.0),)
 
 
     def process_context(self, context):
