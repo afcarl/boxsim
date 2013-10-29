@@ -45,6 +45,8 @@ public class InteractExp extends Exp {
     public ArrayList<Object> toy_vectors;
     public ArrayList<BodyEntity> toys;
     public ArrayList<PosSensor> toySensors;
+    
+    public ArrayList<String> channels;
 
     // FIXME Have a class protocol reading from a config file
     /* Protocol         id    description                  dest  content */
@@ -71,6 +73,8 @@ public class InteractExp extends Exp {
         super(port, rc);
 
         lengths = new ArrayList<Float>();
+        
+        channels = new ArrayList<String>();
 
         playground = new Playground(AREA_SIZE, AREA_SIZE, WALL_SIZE);
     }
@@ -227,6 +231,12 @@ public class InteractExp extends Exp {
 
         toy_vectors = (ArrayList<Object>) msg.readArrayList();
 
+        ArrayList<Object> channels_o = (ArrayList<Object>) msg.readArrayList();
+        channels.clear();
+        for(Object d : channels_o) {
+            channels.add((String) d);
+        }
+
         // Reachable limits
         ArrayList<ArrayList<Double>> bounds = new ArrayList<ArrayList<Double>>();
         ArrayList<Double> bounds_x = new ArrayList<Double>();
@@ -373,7 +383,11 @@ public class InteractExp extends Exp {
         HashMap<String, Object> readings = new HashMap<String, Object>();
 
         for (LogSensor s : playground.cc.logSensors) {
-            readings.put(s.getName(), s.history());
+            for(String channel : this.channels){
+                if(channel.compareTo(s.getName()) == 0){
+                    readings.put(s.getName(), s.history());
+                }
+            }
         }
 
         readings.put(playground.cr.getName(), playground.cr.history());
