@@ -30,6 +30,10 @@ class SensoryPrimitive(object):
     def __init__(self, cfg):
         pass
 
+    def required_channels(self):
+        """Defines used channels for this sensory primitive"""
+        raise NotImplementedError
+
     def process_context(self, context):
         """Define s_feats and s_bounds here"""
         raise NotImplementedError
@@ -43,6 +47,9 @@ class Uniformize(SensoryPrimitive):
 
     def __init__(self, sensory_prim):
         self.sensory_prim = sensory_prim
+
+    def required_channels(self):
+        return self.sensory_prim.required_channels()
 
     def process_context(self, context):
         self.sensory_prim.process_context(context)
@@ -62,6 +69,10 @@ class EndPos(SensoryPrimitive):
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.res = cfg.sprimitive.res
+
+    def required_channels(self):
+        return (self.object_name + '_pos',)
+
 
     def process_context(self, context):
         self.s_feats = (0, 1, 2,)
@@ -86,6 +97,9 @@ class MaxVel(SensoryPrimitive):
     def process_context(self, context):
         self.s_feats = (0, 1)
         self.s_bounds = ((0.0, 800.0),) + ((0.0, 1.0),)
+        
+    def required_channels(self):
+        return (self.object_name + '_vel',)
 
     def process_sensors(self, sensors_data):
         vel_array = sensors_data[self.object_name + '_vel']
@@ -102,6 +116,9 @@ class Collisions(SensoryPrimitive):
     def __init__(self, cfg):
         self.setA = cfg.sprimitive.setA
         self.setB = cfg.sprimitive.setB
+
+    def required_channels(self):
+        return ('_collisions',)
 
     def process_context(self, context):
         self.s_feats = (0, 1, 2, 3, 4)
@@ -148,6 +165,8 @@ class Hear(SensoryPrimitive):
         self.s_feats = (0, 1, 2)
         self.s_bounds = self.vocalizer.s_bounds + ((0.0, 1.0),)
 
+    def required_channels(self):
+        return ('_collisions',)
 
     def process_context(self, context):
         self.geobounds = context['geobounds']
@@ -188,6 +207,9 @@ class Haptic(SensoryPrimitive):
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2)
+        
+    def required_channels(self):
+        return ('_collisions',)
 
     def process_context(self, context):
         self.geobounds = context['geobounds']
@@ -226,6 +248,9 @@ class Visual(SensoryPrimitive):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2, 3)
         self.s_bounds = ((0.0, 1.0),)*4
+
+    def required_channels(self):
+        return (self.object_name + '_pos',)
 
     def process_context(self, context):
         self.geobounds = context['geobounds']
