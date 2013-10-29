@@ -16,7 +16,7 @@ def test_unibox():
         toy_pos = box.execute_order(order)
         check *= toy_pos[2] == 0.0
 
-        for _ in range(20):
+        for _ in range(100):
             order = [random.random() for _ in range(13)]
             pos = box.execute_order(order)
             if pos[2] == 0.0:
