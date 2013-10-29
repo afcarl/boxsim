@@ -66,7 +66,7 @@ class Simulation(object):
         motor_cmd = self.motor_prim.process_order(order)
         featdict = self._boxabs.execute_order(motor_cmd, self.cfg.steps)
         effect = self.sensory_prim.process_sensors(featdict)
-        assert(all(b_min <= e_i <= b_max for e_i, (b_min, b_max) in zip(effect, self.s_bounds)))
+        assert(all(b_min <= e_i <= b_max for e_i, (b_min, b_max) in zip(effect, self.s_bounds))), "{} not inside {}".format(effect, self.s_bounds)
         return effect
 
     def _make_conf(self):

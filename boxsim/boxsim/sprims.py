@@ -161,6 +161,7 @@ class Hear(SensoryPrimitive):
         else:
             mouth = tuple(self._transform(c) for c in collisions[:3])
             suffix = (1.0,)
+        assert all(0 <= m_i <= 1 for m_i in mouth), "{} is not within bounds".format(collisions[:3])
         perceive = self.vocalizer.execute_order(mouth) + suffix
         return perceive
 
