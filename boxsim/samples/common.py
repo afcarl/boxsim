@@ -9,7 +9,7 @@ cfg.arm.base_pos  = (400, 80)
 
 cfg.steps         = 12*60
 
-cfg.com.visu        = False
+cfg.com.visu        = True
 cfg.com.verbose     = False
 cfg.com.debug       = False
 cfg.com.java_output = False

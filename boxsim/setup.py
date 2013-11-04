@@ -10,7 +10,7 @@ def read(fname):
 
 setup(
     name = "boxsim",
-    version = "0.1",
+    version = "1.0",
     author = "Fabien Benureau",
     author_email = "fabien.benureau@inria.fr",
     description = ("A java simulation based on JBox2D with a python interface"),

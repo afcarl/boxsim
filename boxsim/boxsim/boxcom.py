@@ -1,3 +1,9 @@
+"""
+    BoxAbstraction and BoxCom class.
+    BoxCom handle all technical communication details.
+    BoxAbstraction provide a simple interface to interact with BoxCom
+"""
+
 import os
 import traceback, random, time
 import signal
@@ -10,8 +16,28 @@ from toolbox import gfx
 from sockit.client import Client
 from sockit.outmsg import OutboundMessage
 
+
+
+class BoxAbstraction(object):
+    """ A very simple interface to interact with the simulation
+        The BoxCom class handle all technical details.
+    """
+
+    def __init__(self, conf_vector, cfg):
+        self.cfg = cfg
+        self._boxcom = BoxCom(self.cfg)
+        self.context = self._boxcom.send_conf(conf_vector)
+
+    def execute_order(self, order, nsteps):
+        return self._boxcom.send_order(order, nsteps)
+
+    def close(self):
+        self._boxcom.disconnect()
+
+
+
 # Socket adress
-IP = 'localhost'
+IP = '127.0.0.1'
 PORT = 1989
 
 # Protocol
@@ -33,13 +59,14 @@ prefixcolor = gfx.purple
 defaultcfg = treedict.TreeDict()
 defaultcfg.java_output = False
 defaultcfg.debug       = False
+defaultcfg.verbose     = False
+defaultcfg.visu        = False
 
 class BoxCom(object):
     """Handle all technical aspects of simulation instanciation and communication"""
 
-    def __init__(self, sim, cfg, debug = False, java_output = False):
-        self.sim = sim
-        self.cfg = sim.cfg
+    def __init__(self, cfg):
+        self.cfg = cfg
         self.cfg.update(defaultcfg, overwrite = False)
 
         self.client = Client()
@@ -66,6 +93,7 @@ class BoxCom(object):
         return port
 
     def launch_sim(self, port):
+        """Launch a subprocess for the Java simulation server"""
 
         interact_file = os.path.dirname(__file__) + '/' + 'interact.jar'
         assert os.path.exists(interact_file), "The file {} does not exist. Did you build the java code ?".format(interact_file)
@@ -85,41 +113,6 @@ class BoxCom(object):
         time.sleep(5)
         return proc
 
-    def receive_sensors(self):
-        """Interprets and return results"""
-        resmsg = self.client.sendAndReceive(OutboundMessage(MSG_SENSOR, []))
-        assert resmsg.type == MSG_SENSOR
-
-        results =  self.process_sensors(resmsg)
-        self.print_debug("Received results: {}".format(", ".join(["%+2.1f" % e for e in results]),))
-
-        return results
-
-    def process_sensors(self, resmsg):
-        n_size = resmsg.readInt()
-        return tuple(resmsg.readDouble() for _ in range(n_size))
-
-    def send_order(self, init_pos, order, nsteps, conf):
-        """Send an order, run nsteps, and return result"""
-
-
-        self.print_debug("Reseting the simulation")
-        resetMsg = self.client.sendAndReceive(OutboundMessage(MSG_RESET, [len(init_pos)] + init_pos + conf))
-        assert resetMsg.type == MSG_SENSOR
-
-        self.print_debug("Sending order({})".format(", ".join(["%+2.1f" % o for o in order]), prefixcolor, gfx.end))
-        orderConfirm = self.client.sendAndReceive(OutboundMessage(MSG_ORDER, [len(order)]+order ))
-        assert orderConfirm.type == MSG_ORDER
-
-        self.print_debug("Requesting {} steps run".format(nsteps))
-        stepConfirm = self.client.sendAndReceive(OutboundMessage(MSG_STEP, [nsteps]), timeout = 1000)
-        assert stepConfirm.type == MSG_STEP
-
-        return self.process_sensors(resetMsg), self.receive_sensors()
-
-    def close(self):
-        os.killpg(self.simproc.pid, signal.SIGTERM)
-
     def connect(self, port):
         b = self.client.connect(IP, port)
 
@@ -135,16 +128,6 @@ class BoxCom(object):
             traceback.print_exc()
             self.client.disconnect()
 
-    def send_conf(self, conf):
-        msg = self.client.sendAndReceive(OutboundMessage(MSG_CONF, [60.0, 3, 20, 20] + conf))
-        assert msg.type == MSG_CONF
-
-        reachable_space = ((msg.readDouble(), msg.readDouble()), (msg.readDouble(), msg.readDouble()))
-        self.print_status("sent configuration {}".format(", ".join("{:+3.1f}".format(c_i) if type(c_i) == float else "{}".format(c_i) for c_i in [60.0, 3, 20, 20] + conf)))
-        self.print_status("reachable space: x:({:+3.1f}, {:+3.1f}), y:({:+3.1f}, {:+3.1f})".format(
-                          reachable_space[0][0], reachable_space[0][1], reachable_space[1][0], reachable_space[1][1]))
-        return reachable_space
-
     def disconnect(self):
         self.print_status("disconnecting")
 
@@ -155,3 +138,47 @@ class BoxCom(object):
 
         self.print_status("disconnected")
         self.close()
+
+    def close(self):
+        os.killpg(self.simproc.pid, signal.SIGTERM)
+
+
+    def receive_sensors(self):
+        """Interprets and return results"""
+        resmsg = self.client.sendAndReceive(OutboundMessage(MSG_SENSOR, []))
+        assert resmsg.type == MSG_SENSOR
+
+        results = resmsg.read()
+        self.print_debug("Received results: {}".format(results))
+
+        return results
+
+    def send_order(self, order, nsteps):
+        """Send an order, run nsteps, and return result"""
+
+
+        self.print_debug("Reseting the simulation")
+        resetMsg = self.client.sendAndReceive(OutboundMessage(MSG_RESET))
+        assert resetMsg.type == MSG_RESET
+
+#        self.print_debug("Sending order({})".format(", ".join(["%+2.1f" % o for o in order]), prefixcolor, gfx.end))
+        orderConfirm = self.client.sendAndReceive(OutboundMessage(MSG_ORDER, order ))
+        assert orderConfirm.type == MSG_ORDER
+
+        self.print_debug("Requesting {} steps run".format(nsteps))
+        stepConfirm = self.client.sendAndReceive(OutboundMessage(MSG_STEP, [nsteps]), timeout = 1000)
+        assert stepConfirm.type == MSG_STEP
+
+        return self.receive_sensors()
+
+    def send_conf(self, conf):
+        #print('CONF', [60.0, 3, 20, 20] + conf)
+        msg = self.client.sendAndReceive(OutboundMessage(MSG_CONF, [60.0, 3, 20, 20] + conf))
+        assert msg.type == MSG_CONF
+
+        context = msg.read()
+        # self.print_status("sent configuration {}".format(", ".join("{:+3.1f}".format(c_i) if type(c_i) == float else "{}".format(c_i) for c_i in [60.0, 3, 20, 20] + conf)))
+        # self.print_status("reachable space: x:({:+3.1f}, {:+3.1f}), y:({:+3.1f}, {:+3.1f})".format(
+        #                   reachable_space[0][0], reachable_space[0][1], reachable_space[1][0], reachable_space[1][1]))
+        return context
+

@@ -5,25 +5,28 @@ import traceback
 import boxsim
 from common import cfg
 
-def test_unibox():
+def test_pool():
     """Test that uniformized sim produce coherent results"""
     check = True
 
+    cfg.toys.ball2.pos         = (200, 600)
+    cfg.toys.ball2.width       = 40
+    cfg.toys.ball2.type        = 'ball'
+    cfg.toys.ball2.friction    = 1.0
+    cfg.toys.ball2.restitution = 0.7
+    cfg.toys.ball2.density     = 1.0
+
+    cfg.sprimitive.object_name = 'ball2'
+
     box = boxsim.Simulation(cfg)
 
-    try:
-        order = [0.5] * 12 + [0.0]
-        toy_pos = box.execute_order(order)
-        check *= toy_pos[2] == 0.0
 
-        for _ in range(100):
+    try:
+        for _ in range(1000):
             order = [random.random() for _ in range(13)]
             pos = box.execute_order(order)
-            if pos[2] == 0.0:
-                check *= toy_pos == pos
-            if pos[:2] == toy_pos[:2]:
-                check *= toy_pos[2] == pos[2]
-            check *= all(0 <= pos_i <= 1 for pos_i in pos)
+            if pos[2] == 1.0:
+                print order
 
     except Exception as e:
         traceback.print_exc()
@@ -34,7 +37,7 @@ def test_unibox():
     return check
 
 
-tests = [test_unibox]
+tests = [test_pool]
 
 if __name__ == "__main__":
     print("\033[1m%s\033[0m" % (__file__,))

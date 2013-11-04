@@ -6,6 +6,8 @@ import treedict
 import boxsim
 from common import cfg
 
+raise DeprecationWarning
+
 class MockSim(object):
 
     def __init__(self):

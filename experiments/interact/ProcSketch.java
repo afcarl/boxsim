@@ -5,8 +5,9 @@ package experiments.interact;
  * This is not a .pde file, and as such can't be used directly in Processing.
  */
 
-import playground.Mouse;
+import java.io.IOException;
 
+import playground.Mouse;
 
 import processing.core.*;
 import procbox.*;
@@ -73,7 +74,10 @@ public class ProcSketch extends PApplet implements RunController {
 
     public void mousePressed() {
         if (!mouse.mousePressed(mouseX, mouseY)) {
-        	exp.follow(mouseX, mouseY);
+        	try {
+        	    exp.follow(mouseX, mouseY);
+        	} catch (IOException e)
+        	{}
         }
     }
 
@@ -83,7 +87,10 @@ public class ProcSketch extends PApplet implements RunController {
 
     public void mouseDragged() {
         if (!mouse.mouseDragged(mouseX, mouseY)) {
-        	exp.follow(mouseX, mouseY);
+            try {
+                exp.follow(mouseX, mouseY);
+            } catch (IOException e)
+            {}
         }
     }
 
