@@ -55,6 +55,10 @@ class Simulation(object):
         return self.sensory_prim.s_bounds
 
     @property
+    def s_fixed(self):
+        return self.sensory_prim.s_fixed
+
+    @property
     def m_feats(self):
         return self.motor_prim.m_feats
 

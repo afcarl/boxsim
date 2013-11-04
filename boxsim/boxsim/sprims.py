@@ -35,7 +35,7 @@ class SensoryPrimitive(object):
         raise NotImplementedError
 
     def process_context(self, context):
-        """Define s_feats and s_bounds here"""
+        """Define s_feats, s_bounds and s_fixed here"""
         raise NotImplementedError
 
     def process_sensors(self, context):
@@ -53,8 +53,9 @@ class Uniformize(SensoryPrimitive):
 
     def process_context(self, context):
         self.sensory_prim.process_context(context)
-        self.s_feats = self.sensory_prim.s_feats
+        self.s_feats  = self.sensory_prim.s_feats
         self.s_bounds = tuple((0.0, 1.0) for _ in self.sensory_prim.s_bounds)
+        self.s_fixed  = self.sensory_prim.s_fixed
 
     def _sim2uni(self, effect):
         return tuple((e_i - s_min)/(s_max - s_min) for e_i, (s_min, s_max) in zip(effect, self.sensory_prim.s_bounds))
@@ -77,6 +78,7 @@ class EndPos(SensoryPrimitive):
     def process_context(self, context):
         self.s_feats = (0, 1, 2,)
         self.s_bounds = tuple(context['geobounds']) + ((0.0, 1.0),)
+        self.s_fixed = (None, None, 1.0)
 
     def process_sensors(self, sensors_data):
         pos_array = sensors_data[self.object_name + '_pos']
@@ -97,7 +99,8 @@ class MaxVel(SensoryPrimitive):
     def process_context(self, context):
         self.s_feats = (0, 1)
         self.s_bounds = ((0.0, 800.0),) + ((0.0, 1.0),)
-        
+        self.s_fixed = (None, 1.0)
+
     def required_channels(self):
         return (self.object_name + '_vel',)
 
@@ -123,6 +126,7 @@ class Collisions(SensoryPrimitive):
     def process_context(self, context):
         self.s_feats = (0, 1, 2, 3, 4)
         self.s_bounds = tuple(context['geobounds']) + ((-800.0, 800.0), (-800.0, 800.0)) + ((0.0, 1.0),)
+        self.s_fixed = (None, None, None, None, 1.0)
 
     def process_sensors(self, sensors_data):
         collisions = sensors_data['_collisions']
@@ -164,6 +168,7 @@ class Hear(SensoryPrimitive):
         self.vocalizer = robots.VowelModel()
         self.s_feats = (0, 1, 2)
         self.s_bounds = self.vocalizer.s_bounds + ((0.0, 1.0),)
+        self.s_fixed = (None, None, 1.0)
 
     def required_channels(self):
         return ('_collisions',)
@@ -207,7 +212,8 @@ class Haptic(SensoryPrimitive):
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2)
-        
+        self.s_fixed = (None, None, 1.0)
+
     def required_channels(self):
         return ('_collisions',)
 
@@ -248,6 +254,7 @@ class Visual(SensoryPrimitive):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2, 3)
         self.s_bounds = ((0.0, 1.0),)*4
+        self.s_fixed = (None, None, None, 1.0)
 
     def required_channels(self):
         return (self.object_name + '_pos',)
