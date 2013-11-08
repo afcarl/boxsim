@@ -203,15 +203,17 @@ class Hear(SensoryPrimitive):
 
 sprims['hear'] = Hear
 
-def vector2angle(v):
-    return math.atan2(v[1], v[0])
-
-class Haptic(SensoryPrimitive):
-    """Return the angle and intensity of the strongest interaction with the arm tip and an object"""
+ref = 440.0 # Hz
+offset = 49.0 # A 440Hz
+class Octave(SensoryPrimitive):
+    """"""
+    def _compute_frequence(self, key):
+        return 2.0 ** (key / 12.0) * ref
 
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2)
+        self.s_bounds = ((-1.0, self._compute_frequence(12)),)*4
         self.s_fixed = (None, None, 1.0)
 
     def required_channels(self):
@@ -219,27 +221,36 @@ class Haptic(SensoryPrimitive):
 
     def process_context(self, context):
         self.geobounds = context['geobounds']
-        x_range = self.geobounds[0][1] - self.geobounds[0][0]
-        y_range = self.geobounds[1][1] - self.geobounds[1][0]
-        self.s_bounds = ((-math.pi, math.pi), (0.0, 3*toolbox.norm((x_range, y_range))), (0.0, 1.0))
+
+    def _transform(self, collision):
+        if len(collision) > 0:
+            col = collision[-1]
+            # collisions on y
+            min_y, max_y = self.geobounds[1]
+            if col[0] == 'wallW':
+                key = (1.0 - 1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 3 + 9
+            if collision[-1][0] == 'wallE':
+                key = (1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 3 + 3
+            # collisions on x
+            min_x, max_x = self.geobounds[0]
+            if col[0] == 'wallN':
+                key = (1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 3 + 0
+            if col[0] == 'wallS':
+                key = (1.0 - 1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 3 + 6
+            print key
+            return self._compute_frequence(key)
+        else:
+            return -1.0
 
     def process_sensors(self, sensors_data):
         collisions = sensors_data['_collisions']
-        collisions = filter_collisions(collisions, ['arm.tip'], [self.object_name])
-        if len(collisions) == 0:
-            return (0.0, 0.0, 0.0)
-        else:
-            interaction = collisions[0][3]
-            for c in collisions:
-                if toolbox.norm(c[3]) > toolbox.norm(interaction):
-                    interaction = c[3]
-            angle = vector2angle(interaction)
-            norm = toolbox.norm(interaction)
-            print norm
+        n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+        e = self._transform(filter_collisions(collisions, ['wallE'], [self.object_name]))
+        s = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
+        w = self._transform(filter_collisions(collisions, ['wallW'], [self.object_name]))
+        return (n, e, s, w)
 
-            return (angle, norm, 1.0)
-
-sprims['haptic'] = Haptic
+sprims['octave'] = Octave
 
 color_upleft = Color(255, 0, 0)
 color_upright = Color(255, 255, 0)
@@ -302,3 +313,41 @@ class Visual(SensoryPrimitive):
         return self.interpolate_color(self.interpolate_color(color_00, color_10, x), self.interpolate_color(color_01, color_11, x), y)
 
 sprims['visual'] = Visual
+
+def vector2angle(v):
+    return math.atan2(v[1], v[0])
+
+class Haptic(SensoryPrimitive):
+    """Return the angle and intensity of the strongest interaction with the arm tip and an object"""
+
+    def __init__(self, cfg):
+        self.object_name = cfg.sprimitive.object_name
+        self.s_feats = (0, 1, 2)
+        self.s_fixed = (None, None, 1.0)
+
+    def required_channels(self):
+        return ('_collisions',)
+
+    def process_context(self, context):
+        self.geobounds = context['geobounds']
+        x_range = self.geobounds[0][1] - self.geobounds[0][0]
+        y_range = self.geobounds[1][1] - self.geobounds[1][0]
+        self.s_bounds = ((-math.pi, math.pi), (0.0, 3*toolbox.norm((x_range, y_range))), (0.0, 1.0))
+
+    def process_sensors(self, sensors_data):
+        collisions = sensors_data['_collisions']
+        collisions = filter_collisions(collisions, ['arm.tip'], [self.object_name])
+        if len(collisions) == 0:
+            return (0.0, 0.0, 0.0)
+        else:
+            interaction = collisions[0][3]
+            for c in collisions:
+                if toolbox.norm(c[3]) > toolbox.norm(interaction):
+                    interaction = c[3]
+            angle = vector2angle(interaction)
+            norm = toolbox.norm(interaction)
+            print norm
+
+            return (angle, norm, 1.0)
+
+sprims['haptic'] = Haptic
