@@ -205,6 +205,7 @@ sprims['hear'] = Hear
 
 ref = 440.0 # Hz
 offset = 49.0 # A 440Hz
+no_collision_offset = 10
 class Octave(SensoryPrimitive):
     """"""
     def _compute_frequence(self, key):
@@ -212,9 +213,12 @@ class Octave(SensoryPrimitive):
 
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
-        self.s_feats = (0, 1, 2)
-        self.s_bounds = ((-1.0, self._compute_frequence(12)),)*4
-        self.s_fixed = (None, None, 1.0)
+        self.s_feats = (0, 1, 2, 3)
+        self.s_bounds = ((self._compute_frequence(0) - no_collision_offset, self._compute_frequence(3)),
+            (self._compute_frequence(3) - no_collision_offset, self._compute_frequence(6)),
+            (self._compute_frequence(6) - no_collision_offset, self._compute_frequence(9)),
+            (self._compute_frequence(9) - no_collision_offset, self._compute_frequence(12)))
+        self.s_fixed = (None, None, None, None)
 
     def required_channels(self):
         return ('_collisions',)
@@ -245,9 +249,13 @@ class Octave(SensoryPrimitive):
     def process_sensors(self, sensors_data):
         collisions = sensors_data['_collisions']
         n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+        if n == -1: n = self.s_bounds[0][0]
         e = self._transform(filter_collisions(collisions, ['wallE'], [self.object_name]))
+        if e == -1: e = self.s_bounds[1][0]
         s = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
+        if s == -1: s = self.s_bounds[2][0]
         w = self._transform(filter_collisions(collisions, ['wallW'], [self.object_name]))
+        if w == -1: w = self.s_bounds[3][0]
         return (n, e, s, w)
 
 sprims['octave'] = Octave

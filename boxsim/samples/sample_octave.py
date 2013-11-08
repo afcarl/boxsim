@@ -2,7 +2,7 @@ import testenv
 import boxsim
 from common import cfg
 
-cfg.com.visu = True
+cfg.com.visu = False
 
 cfg.toys.ball1.friction       = 1.0
 cfg.toys.ball1.restitution    = 1.0
