@@ -205,7 +205,9 @@ sprims['hear'] = Hear
 
 ref = 440.0 # Hz
 offset = 49.0 # A 440Hz
-no_collision_offset = 10
+no_collision_offset = 50
+
+
 class Octave(SensoryPrimitive):
     """"""
     def _compute_frequence(self, key):
@@ -233,7 +235,7 @@ class Octave(SensoryPrimitive):
             min_y, max_y = self.geobounds[1]
             if col[0] == 'wallW':
                 key = (1.0 - 1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 3 + 9
-            if collision[-1][0] == 'wallE':
+            if col[0] == 'wallE':
                 key = (1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 3 + 3
             # collisions on x
             min_x, max_x = self.geobounds[0]
@@ -298,8 +300,11 @@ class Visual(SensoryPrimitive):
             green += c.green * gamma
             sum_gamma += gamma
             gamma *= gamma
-        return (red / 255 / sum_gamma, green / 255 / sum_gamma, blue / 255 / sum_gamma, 0.0)
-        
+        if pos_list[0] == pos_list[-1]:
+            return (red / 255 / sum_gamma, green / 255 / sum_gamma, blue / 255 / sum_gamma, 0.0)
+        else:
+            return (red / 255 / sum_gamma, green / 255 / sum_gamma, blue / 255 / sum_gamma, 1.0)
+
     def interpolate_color(self, color_1, color_2, fraction):
         fraction = max(min(fraction, 1.0), 0.0)
         
