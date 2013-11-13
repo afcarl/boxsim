@@ -233,16 +233,15 @@ class Octave(SensoryPrimitive):
             # collisions on y
             min_y, max_y = self.geobounds[1]
             if col[0] == 'wallW':
-                key = (1.0 - 1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 12 + 36
+                key = (1.0 - 1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 12 + 73
             if col[0] == 'wallE':
-                key = (1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 12 + 12
+                key = (1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 12 + 49
             # collisions on x
             min_x, max_x = self.geobounds[0]
             if col[0] == 'wallN':
-                key = (1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 0
+                key = (1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 37
             if col[0] == 'wallS':
-                key = (1.0 - 1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 24
-            print key
+                key = (1.0 - 1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 61
             return self._compute_frequence(key)
         else:
             return -1.0
