@@ -207,19 +207,18 @@ ref = 440.0 # Hz
 offset = 49.0 # A 440Hz
 no_collision_offset = 50
 
-
 class Octave(SensoryPrimitive):
     """"""
     def _compute_frequence(self, key):
-        return 2.0 ** (key / 12.0) * ref
+        return 2.0 ** ((key - offset) / 12.0) * ref
 
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2, 3)
-        self.s_bounds = ((self._compute_frequence(0) - no_collision_offset, self._compute_frequence(3)),
-            (self._compute_frequence(3) - no_collision_offset, self._compute_frequence(6)),
-            (self._compute_frequence(6) - no_collision_offset, self._compute_frequence(9)),
-            (self._compute_frequence(9) - no_collision_offset, self._compute_frequence(12)))
+        self.s_bounds = ((self._compute_frequence(37) - no_collision_offset, self._compute_frequence(49)),
+            (self._compute_frequence(49) - no_collision_offset, self._compute_frequence(61)),
+            (self._compute_frequence(61) - no_collision_offset, self._compute_frequence(73)),
+            (self._compute_frequence(73) - no_collision_offset, self._compute_frequence(85)))
         self.s_fixed = (None, None, None, None)
 
     def required_channels(self):
@@ -234,15 +233,15 @@ class Octave(SensoryPrimitive):
             # collisions on y
             min_y, max_y = self.geobounds[1]
             if col[0] == 'wallW':
-                key = (1.0 - 1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 3 + 9
+                key = (1.0 - 1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 12 + 36
             if col[0] == 'wallE':
-                key = (1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 3 + 3
+                key = (1.0 * (col[2][1] - min_y)/(max_y - min_y)) * 12 + 12
             # collisions on x
             min_x, max_x = self.geobounds[0]
             if col[0] == 'wallN':
-                key = (1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 3 + 0
+                key = (1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 0
             if col[0] == 'wallS':
-                key = (1.0 - 1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 3 + 6
+                key = (1.0 - 1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 24
             print key
             return self._compute_frequence(key)
         else:
