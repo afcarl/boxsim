@@ -261,6 +261,32 @@ class Piano2D(Piano):
 
 sprims['piano2d'] = Piano2D
 
+class Piano2DPos(Piano):
+	""""""
+	def __init__(self, cfg):
+		self.object_name = cfg.sprimitive.object_name
+		self.s_feats = (0, 1)
+		self.s_bounds = ((0, _compute_frequence(88)),(0.0, 1.0))
+		self.s_fixed = (None, None)
+	
+	def required_channels(self):
+		return (self.object_name + '_pos',)
+	
+	def process_sensors(self, sensors_data):
+		pos_list = sensors_data[self.object_name + '_pos']
+		if pos_list[0] == pos_list[-1]:
+			m = 0.0
+		else:
+			m = 1.0
+		collisions = sensors_data['_collisions']
+		n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+		if n == -1:
+			return (self.s_bounds[0][0], m)
+		else:
+			return (n, m)
+
+sprims['piano2dpos'] = Piano2DPos
+
 no_collision_offset = 50
 
 class Octave(SensoryPrimitive):
