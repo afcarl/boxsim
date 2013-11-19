@@ -205,6 +205,44 @@ sprims['hear'] = Hear
 
 ref = 440.0 # Hz
 offset = 49.0 # A 440Hz
+
+class Piano(SensoryPrimitive):
+    """"""
+    def _compute_frequence(self, key):
+        return 2.0 ** ((key - offset) / 12.0) * ref
+
+    def __init__(self, cfg):
+        self.object_name = cfg.sprimitive.object_name
+        self.s_feats = (0,)
+        self.s_bounds = ((0, self._compute_frequence(88)),)
+        self.s_fixed = (None,)
+
+    def required_channels(self):
+        return ('_collisions',)
+
+    def process_context(self, context):
+        self.geobounds = context['geobounds']
+
+    def _transform(self, collision):
+        if len(collision) > 0:
+            col = collision[-1]
+            # collisions on x
+            min_x, max_x = self.geobounds[0]
+            if col[0] == 'wallN':
+				return self._compute_frequence((1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 87 + 1)
+            else:
+				return -1.0
+        else:
+            return -1.0
+
+    def process_sensors(self, sensors_data):
+        collisions = sensors_data['_collisions']
+        n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+        if n == -1: n = self.s_bounds[0][0]
+        return (n,)
+
+sprims['piano'] = Piano
+
 no_collision_offset = 50
 
 class Octave(SensoryPrimitive):
