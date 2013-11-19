@@ -205,16 +205,15 @@ sprims['hear'] = Hear
 
 ref = 440.0 # Hz
 offset = 49.0 # A 440Hz
+def _compute_frequence(key):
+    return 2.0 ** ((key - offset) / 12.0) * ref
 
 class Piano(SensoryPrimitive):
     """"""
-    def _compute_frequence(self, key):
-        return 2.0 ** ((key - offset) / 12.0) * ref
-
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0,)
-        self.s_bounds = ((0, self._compute_frequence(88)),)
+        self.s_bounds = ((0, _compute_frequence(88)),)
         self.s_fixed = (None,)
 
     def required_channels(self):
@@ -229,34 +228,50 @@ class Piano(SensoryPrimitive):
             # collisions on x
             min_x, max_x = self.geobounds[0]
             if col[0] == 'wallN':
-				return self._compute_frequence((1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 87 + 1)
+				return _compute_frequence((1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 87 + 1)
             else:
 				return -1.0
         else:
             return -1.0
 
     def process_sensors(self, sensors_data):
-        collisions = sensors_data['_collisions']
-        n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
-        if n == -1: n = self.s_bounds[0][0]
-        return (n,)
+		collisions = sensors_data['_collisions']
+		n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+		if n == -1:
+			n = self.s_bounds[0][0]
+		return (n,)
 
 sprims['piano'] = Piano
+
+class Piano2D(Piano):
+	""""""
+	def __init__(self, cfg):
+		self.object_name = cfg.sprimitive.object_name
+		self.s_feats = (0, 1)
+		self.s_bounds = ((0, _compute_frequence(88)),(0.0, 1.0))
+		self.s_fixed = (None, None)
+	
+	def process_sensors(self, sensors_data):
+		collisions = sensors_data['_collisions']
+		n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+		if n == -1:
+			return (self.s_bounds[0][0], 0.0)
+		else:
+			return (n, 1.0)
+
+sprims['piano2d'] = Piano2D
 
 no_collision_offset = 50
 
 class Octave(SensoryPrimitive):
     """"""
-    def _compute_frequence(self, key):
-        return 2.0 ** ((key - offset) / 12.0) * ref
-
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2, 3)
-        self.s_bounds = ((self._compute_frequence(37) - no_collision_offset, self._compute_frequence(49)),
-            (self._compute_frequence(49) - no_collision_offset, self._compute_frequence(61)),
-            (self._compute_frequence(61) - no_collision_offset, self._compute_frequence(73)),
-            (self._compute_frequence(73) - no_collision_offset, self._compute_frequence(85)))
+        self.s_bounds = ((_compute_frequence(37) - no_collision_offset, _compute_frequence(49)),
+            (_compute_frequence(49) - no_collision_offset, _compute_frequence(61)),
+            (_compute_frequence(61) - no_collision_offset, _compute_frequence(73)),
+            (_compute_frequence(73) - no_collision_offset, _compute_frequence(85)))
         self.s_fixed = (None, None, None, None)
 
     def required_channels(self):
@@ -280,7 +295,7 @@ class Octave(SensoryPrimitive):
                 key = (1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 37
             if col[0] == 'wallS':
                 key = (1.0 - 1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 12 + 61
-            return self._compute_frequence(key)
+            return _compute_frequence(key)
         else:
             return -1.0
 
