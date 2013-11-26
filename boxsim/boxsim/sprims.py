@@ -209,7 +209,7 @@ def _compute_frequence(key):
     return 2.0 ** ((key - offset) / 12.0) * ref
 
 class Piano(SensoryPrimitive):
-    """"""
+    """Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0,)
@@ -222,12 +222,13 @@ class Piano(SensoryPrimitive):
     def process_context(self, context):
         self.geobounds = context['geobounds']
 
+	"""Transforms the latest collision into a frequency"""
     def _transform(self, collision):
         if len(collision) > 0:
             col = collision[-1]
             # collisions on x
             min_x, max_x = self.geobounds[0]
-            if col[0] == 'wallN':
+            if col[0] == 'wallS':
 				return _compute_frequence((1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 87 + 1)
             else:
 				return -1.0
@@ -236,7 +237,7 @@ class Piano(SensoryPrimitive):
 
     def process_sensors(self, sensors_data):
 		collisions = sensors_data['_collisions']
-		n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+		n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
 		if n == -1:
 			n = self.s_bounds[0][0]
 		return (n,)
@@ -244,7 +245,7 @@ class Piano(SensoryPrimitive):
 sprims['piano'] = Piano
 
 class Piano2D(Piano):
-	""""""
+	"""Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
 	def __init__(self, cfg):
 		self.object_name = cfg.sprimitive.object_name
 		self.s_feats = (0, 1)
@@ -253,7 +254,7 @@ class Piano2D(Piano):
 	
 	def process_sensors(self, sensors_data):
 		collisions = sensors_data['_collisions']
-		n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+		n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
 		if n == -1:
 			return (self.s_bounds[0][0], 0.0)
 		else:
@@ -262,7 +263,7 @@ class Piano2D(Piano):
 sprims['piano2d'] = Piano2D
 
 class Piano2DPos(Piano):
-	""""""
+	"""Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
 	def __init__(self, cfg):
 		self.object_name = cfg.sprimitive.object_name
 		self.s_feats = (0, 1)
@@ -279,7 +280,7 @@ class Piano2DPos(Piano):
 		else:
 			m = 1.0
 		collisions = sensors_data['_collisions']
-		n = self._transform(filter_collisions(collisions, ['wallN'], [self.object_name]))
+		n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
 		if n == -1:
 			return (self.s_bounds[0][0], m)
 		else:
@@ -290,7 +291,7 @@ sprims['piano2dpos'] = Piano2DPos
 no_collision_offset = 50
 
 class Octave(SensoryPrimitive):
-    """"""
+    """Each wall can generate an unique frequency when the ball collides."""
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
         self.s_feats = (0, 1, 2, 3)
@@ -306,6 +307,7 @@ class Octave(SensoryPrimitive):
     def process_context(self, context):
         self.geobounds = context['geobounds']
 
+	"""Computes the frequency according to which wall the ball collides."""
     def _transform(self, collision):
         if len(collision) > 0:
             col = collision[-1]
@@ -346,7 +348,7 @@ color_lowright = Color(0, 255, 255)
 int_to_float_const = 1.0 / 255.0
 
 class Visual(SensoryPrimitive):
-    """The balls light up the tile it enters. Return the average light and color"""
+    """The balls moves and its trajectory generates a color"""
 
     def __init__(self, cfg):
         self.object_name = cfg.sprimitive.object_name
@@ -382,6 +384,7 @@ class Visual(SensoryPrimitive):
         else:
             return (red / 255 / sum_gamma, green / 255 / sum_gamma, blue / 255 / sum_gamma, 1.0)
 
+	"""Computes the interpolated color"""
     def interpolate_color(self, color_1, color_2, fraction):
         fraction = max(min(fraction, 1.0), 0.0)
         
@@ -399,6 +402,7 @@ class Visual(SensoryPrimitive):
         
         return Color(red * 255, green * 255, blue * 255)
         
+	"""Computes the color corresponding to coordinates (x, y) in a bilinear color gradient"""
     def bilinear_interpolate_color(self, color_00, color_10, color_01, color_11, x, y):
         return self.interpolate_color(self.interpolate_color(color_00, color_10, x), self.interpolate_color(color_01, color_11, x), y)
 
