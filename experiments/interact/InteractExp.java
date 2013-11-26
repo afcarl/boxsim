@@ -171,6 +171,9 @@ public class InteractExp extends Exp {
         armPos  = (PosSensor) playground.add(new PosSensor(arm, 10000000, 1));
         armAng  = (AngSensor) playground.add(new AngSensor(arm, 10000000, 1));
 
+		armPos  = (PosSensor) playground.add(new PosSensor(arm.tip, 10000000, 1));
+        armAng  = (AngSensor) playground.add(new AngSensor(arm.tip, 10000000, 1));
+
         toySensors = new ArrayList<PosSensor>();
         int i = 0;
         for(BodyEntity toy : toys) {
