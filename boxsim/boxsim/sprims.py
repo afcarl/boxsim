@@ -42,6 +42,10 @@ class SensoryPrimitive(object):
         """Process sensory data and return effect"""
         raise NotImplementedError
 
+    def units(self):
+        """Return a list the physical units for each dimension"""
+        raise NotImplementedError
+        
 
 class Uniformize(SensoryPrimitive):
 
@@ -55,7 +59,8 @@ class Uniformize(SensoryPrimitive):
         self.sensory_prim.process_context(context)
         self.s_feats  = self.sensory_prim.s_feats
         self.s_bounds = tuple((0.0, 1.0) for _ in self.sensory_prim.s_bounds)
-        self.s_fixed  = self.sensory_prim.s_fixed
+        self.real_s_bounds = self.sensory_prim.s_bounds
+        self.s_fixed  = self.sensory_prim.s_fixed # FIXME uniformize
 
     def _sim2uni(self, effect):
         return tuple((e_i - s_min)/(s_max - s_min) for e_i, (s_min, s_max) in zip(effect, self.sensory_prim.s_bounds))
@@ -64,6 +69,8 @@ class Uniformize(SensoryPrimitive):
         effect = self.sensory_prim.process_sensors(sensors_data)
         return self._sim2uni(effect)
 
+    def units(self):
+        return self.sensory_prim.units()
 
 class EndPos(SensoryPrimitive):
 
@@ -73,7 +80,6 @@ class EndPos(SensoryPrimitive):
 
     def required_channels(self):
         return (self.object_name + '_pos',)
-
 
     def process_context(self, context):
         self.s_feats = (0, 1, 2,)
@@ -87,6 +93,9 @@ class EndPos(SensoryPrimitive):
         collision = 0.0 if pos_a == pos_b else 1.0
 
         return tuple(pos_b) + (collision,)
+
+    def units(self):
+        return ('mm', 'mm', None)
 
 sprims['endpos'] = EndPos
 
@@ -110,6 +119,9 @@ class MaxVel(SensoryPrimitive):
         collision = 0.0 if max_vel == 0.0 else 1.0
 
         return (max_vel, collision,)
+
+    def units(self):
+        return ('mm', 'mm', None)
 
 sprims['maxvel'] = MaxVel
 
@@ -141,6 +153,9 @@ class Collisions(SensoryPrimitive):
                     return tuple(collision[2]) + (-collision[3][0], -collision[3][1]) + (1.0,)
 
         return isobarycenter(self.s_bounds)[:4] + (0.0,)
+
+    def units(self):
+        return ('mm', 'mm', 'N', 'N', None)
 
 sprims['collisions'] = Collisions
 
@@ -201,6 +216,9 @@ class Hear(SensoryPrimitive):
             min_x, max_x = self.geobounds[0]
             return 1.0*(x - min_x)/(max_x - min_x)
 
+    def units(self):
+        return ('Hz', 'Hz', None)
+
 sprims['hear'] = Hear
 
 ref = 440.0 # Hz
@@ -222,69 +240,81 @@ class Piano(SensoryPrimitive):
     def process_context(self, context):
         self.geobounds = context['geobounds']
 
-	"""Transforms the latest collision into a frequency"""
+    """Transforms the latest collision into a frequency"""
     def _transform(self, collision):
         if len(collision) > 0:
             col = collision[-1]
             # collisions on x
             min_x, max_x = self.geobounds[0]
             if col[0] == 'wallS':
-				return _compute_frequence((1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 87 + 1)
+                return _compute_frequence((1.0 * (col[2][0] - min_x)/(max_x - min_x)) * 87 + 1)
             else:
-				return -1.0
+                return -1.0
         else:
             return -1.0
 
     def process_sensors(self, sensors_data):
-		collisions = sensors_data['_collisions']
-		n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
-		if n == -1:
-			n = self.s_bounds[0][0]
-		return (n,)
+        collisions = sensors_data['_collisions']
+        n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
+        if n == -1:
+            n = self.s_bounds[0][0]
+        return (n,)
+
+
+    def units(self):
+        return ('Hz',)
+
 
 sprims['piano'] = Piano
 
 class Piano2D(Piano):
-	"""Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
-	def __init__(self, cfg):
-		self.object_name = cfg.sprimitive.object_name
-		self.s_feats = (0, 1)
-		self.s_bounds = ((0, _compute_frequence(88)),(0.0, 1.0))
-		self.s_fixed = (None, None)
-	
-	def process_sensors(self, sensors_data):
-		collisions = sensors_data['_collisions']
-		n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
-		if n == -1:
-			return (self.s_bounds[0][0], 0.0)
-		else:
-			return (n, 1.0)
+    """Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
+    def __init__(self, cfg):
+        self.object_name = cfg.sprimitive.object_name
+        self.s_feats = (0, 1)
+        self.s_bounds = ((0, _compute_frequence(88)),(0.0, 1.0))
+        self.s_fixed = (None, None)
+    
+    def process_sensors(self, sensors_data):
+        collisions = sensors_data['_collisions']
+        n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
+        if n == -1:
+            return (self.s_bounds[0][0], 0.0)
+        else:
+            return (n, 1.0)
+
+    def units(self):
+        return ('Hz', None)
 
 sprims['piano2d'] = Piano2D
 
 class Piano2DPos(Piano):
-	"""Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
-	def __init__(self, cfg):
-		self.object_name = cfg.sprimitive.object_name
-		self.s_feats = (0, 1)
-		self.s_bounds = ((0, _compute_frequence(88)),(0.0, 1.0))
-		self.s_fixed = (None, None)
-	
-	def required_channels(self):
-		return (self.object_name + '_pos',)
-	
-	def process_sensors(self, sensors_data):
-		pos_list = sensors_data[self.object_name + '_pos']
-		if pos_list[0] == pos_list[-1]:
-			m = 0.0
-		else:
-			m = 1.0
-		collisions = sensors_data['_collisions']
-		n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
-		if n == -1:
-			return (self.s_bounds[0][0], m)
-		else:
-			return (n, m)
+    """Collisions with the North wall generate a frequency between AO and C8 (88 keys piano)."""
+    def __init__(self, cfg):
+        self.object_name = cfg.sprimitive.object_name
+        self.s_feats = (0, 1)
+        self.s_bounds = ((0, _compute_frequence(88)),(0.0, 1.0))
+        self.s_fixed = (None, None)
+    
+    def required_channels(self):
+        return (self.object_name + '_pos',)
+    
+    def process_sensors(self, sensors_data):
+        pos_list = sensors_data[self.object_name + '_pos']
+        if pos_list[0] == pos_list[-1]:
+            m = 0.0
+        else:
+            m = 1.0
+        collisions = sensors_data['_collisions']
+        n = self._transform(filter_collisions(collisions, ['wallS'], [self.object_name]))
+        if n == -1:
+            return (self.s_bounds[0][0], m)
+        else:
+            return (n, m)
+
+    def units(self):
+        return ('Hz', None)
+
 
 sprims['piano2dpos'] = Piano2DPos
 
@@ -307,7 +337,7 @@ class Octave(SensoryPrimitive):
     def process_context(self, context):
         self.geobounds = context['geobounds']
 
-	"""Computes the frequency according to which wall the ball collides."""
+    """Computes the frequency according to which wall the ball collides."""
     def _transform(self, collision):
         if len(collision) > 0:
             col = collision[-1]
@@ -338,6 +368,10 @@ class Octave(SensoryPrimitive):
         w = self._transform(filter_collisions(collisions, ['wallW'], [self.object_name]))
         if w == -1: w = self.s_bounds[3][0]
         return (n, e, s, w)
+
+    def units(self):
+        return ('Hz', 'Hz', 'Hz', 'Hz')
+
 
 sprims['octave'] = Octave
 
@@ -384,7 +418,7 @@ class Visual(SensoryPrimitive):
         else:
             return (red / 255 / sum_gamma, green / 255 / sum_gamma, blue / 255 / sum_gamma, 1.0)
 
-	"""Computes the interpolated color"""
+    """Computes the interpolated color"""
     def interpolate_color(self, color_1, color_2, fraction):
         fraction = max(min(fraction, 1.0), 0.0)
         
@@ -402,9 +436,12 @@ class Visual(SensoryPrimitive):
         
         return Color(red * 255, green * 255, blue * 255)
         
-	"""Computes the color corresponding to coordinates (x, y) in a bilinear color gradient"""
+    """Computes the color corresponding to coordinates (x, y) in a bilinear color gradient"""
     def bilinear_interpolate_color(self, color_00, color_10, color_01, color_11, x, y):
         return self.interpolate_color(self.interpolate_color(color_00, color_10, x), self.interpolate_color(color_01, color_11, x), y)
+
+    def units(self):
+        return ('RGB', 'RGB', 'RGB', None)
 
 sprims['visual'] = Visual
 
@@ -443,5 +480,8 @@ class Haptic(SensoryPrimitive):
             print norm
 
             return (angle, norm, 1.0)
+
+    def units(self):
+        return ('degree', 'N', None)
 
 sprims['haptic'] = Haptic

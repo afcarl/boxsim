@@ -40,12 +40,13 @@ public class InteractExp extends Exp {
 
     public ArrayList<Float> lengths;
     public float angle_limit;
+    public boolean arm_collisions;
     public int base_x, base_y;
 
     public ArrayList<Object> toy_vectors;
     public ArrayList<BodyEntity> toys;
     public ArrayList<PosSensor> toySensors;
-    
+
     public ArrayList<String> channels;
 
     // FIXME Have a class protocol reading from a config file
@@ -73,7 +74,7 @@ public class InteractExp extends Exp {
         super(port, rc);
 
         lengths = new ArrayList<Float>();
-        
+
         channels = new ArrayList<String>();
 
         playground = new Playground(AREA_SIZE, AREA_SIZE, WALL_SIZE);
@@ -155,6 +156,14 @@ public class InteractExp extends Exp {
         arm = (Arm) playground.add(new Arm(playground, "arm", lengths.size(), lengths, angle_limit, base_x, base_y, init_pos));
         armc = (PIDController) playground.add(new PIDController(arm, 0.85f, 0.001f, 5.0f));
 
+        if (!arm_collisions) {
+            int armgrp = playground.cf.addGroup();
+            for (Box b: arm.bodies) {
+                playground.cf.addEntityToGroup(b, armgrp);
+            }
+            playground.cf.addEntityToGroup(arm.tip, armgrp);
+        }
+
             // Toy object
 
         toys = new ArrayList<BodyEntity>();
@@ -231,6 +240,8 @@ public class InteractExp extends Exp {
         ArrayList<Object> base_pos = (ArrayList<Object>) msg.readArrayList();
         base_x = ((Number)base_pos.get(0)).intValue();
         base_y = ((Number)base_pos.get(1)).intValue();
+
+        arm_collisions = msg.readBoolean();
 
         toy_vectors = (ArrayList<Object>) msg.readArrayList();
 
