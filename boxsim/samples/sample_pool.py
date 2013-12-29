@@ -2,12 +2,23 @@ import testenv
 import boxsim
 from common import cfg
 
-cfg.toys.ball2.pos         = (200, 600)
-cfg.toys.ball2.width       = 40
-cfg.toys.ball2.type        = 'ball'
-cfg.toys.ball2.friction    = 1.0
-cfg.toys.ball2.restitution = 0.7
-cfg.toys.ball2.density     = 1.0
+cfg.toys.ball1.pos             = (550, 350)
+cfg.toys.ball1.width           = 40
+cfg.toys.ball1.type            = 'ball'
+cfg.toys.ball1.friction        = 1.0
+cfg.toys.ball1.restitution     = 0.7
+cfg.toys.ball1.density         = 1.0
+cfg.toys.ball1.linear_damping  = 0.3
+cfg.toys.ball1.angular_damping = 0.1
+
+cfg.toys.ball2.pos             = (300, 600)
+cfg.toys.ball2.width           = 40
+cfg.toys.ball2.type            = 'ball'
+cfg.toys.ball2.friction        = 1.0
+cfg.toys.ball2.restitution     = 0.7
+cfg.toys.ball2.density         = 1.0
+cfg.toys.ball2.linear_damping  = 0.3
+cfg.toys.ball2.angular_damping = 0.1
 
 cfg.sprimitive.object_name = 'ball2'
 

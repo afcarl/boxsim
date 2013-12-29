@@ -2,10 +2,12 @@ import treedict
 
 cfg = treedict.TreeDict()
 
-cfg.arm.lengths   = (50.0,)*6
+cfg.arm.lengths   = (300.0/6,)*6
 cfg.arm.limits    = (-2.0, 2.0)
 cfg.arm.max_speed = 2.0
 cfg.arm.base_pos  = (400, 80)
+cfg.arm.self_collisions = True
+cfg.arm.noise     = 0.0
 
 cfg.steps         = 12*60
 
